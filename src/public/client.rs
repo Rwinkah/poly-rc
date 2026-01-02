@@ -1,4 +1,4 @@
-use reqwest::{Client as ReqwestClient, Response, Error, StatusCode};
+use reqwest::{Client as ReqwestClient, Response, Error, StatusCode, Url};
 use std::collections::HashMap;
 use std::time::Duration;
 use serde::Serialize;
@@ -11,7 +11,23 @@ pub struct AsyncHttpClient {
     _auto_retry: bool,
 }
 
+#[derive(Debug)]
+pub struct HttpError {
+    pub status: StatusCode,
+    pub url: Option<Url>,
+    pub body: String
+}
 
+
+impl From<reqwest::Error> for HttpError {
+    fn from(error: reqwest::Error) -> Self {
+        HttpError {
+            status: error.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            url: error.url().cloned(),
+            body: error.to_string()
+        }
+    }
+}
 
 
 impl AsyncHttpClient {
@@ -22,7 +38,7 @@ impl AsyncHttpClient {
 
 
     /// Send a GET request to the API
-    pub async fn get(&self, path: Option<&str>, query: Option<HashMap<&str, &str>>) -> Result<Response, Error> {
+    pub async fn get(&self, path: Option<&str>, query: Option<HashMap<&str, &str>>) -> Result<Response, HttpError> {
        let  url = if let Some(p) = path {
         format!("{}{}", self.base_url, p)
        } else {
@@ -35,9 +51,20 @@ impl AsyncHttpClient {
         request = request.query(&query_params);
        }
 
-      let response = request.send().await?;
-      response.error_for_status()
-    
+       let response = request.send().await?;
+
+       let status = response.status();
+       if status.is_client_error() || status.is_server_error() {
+           let url = response.url().clone();
+           let error_body = response.text().await?; 
+           return Err(HttpError {
+               status,
+               url: Some(url),
+               body: error_body,
+           });
+       }
+       
+       Ok(response)
     }
 
     /// Send a POST request to the API
