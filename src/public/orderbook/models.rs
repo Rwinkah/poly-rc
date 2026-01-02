@@ -32,4 +32,3 @@ pub struct TokenId {
 pub struct OrderbookRequestDTO {
     pub token_ids: Vec<TokenId>,
 }
-
