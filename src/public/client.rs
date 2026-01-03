@@ -10,6 +10,54 @@ pub struct AsyncHttpClient {
     _auto_retry: bool,
 }
 
+/// Represents an error from the API
+/// # Variants
+/// * `Http(HttpError)` - An HTTP error
+/// * `Decode(serde_json::Error)` - A JSON decoding error
+/// * `Unexpected(String)` - An unexpected error
+pub enum ApiError {
+    Http(HttpError),
+    Decode(String),
+    Unexpected(String),
+}
+
+impl From<HttpError> for ApiError {
+    fn from(error: HttpError) -> Self {
+        ApiError::Http(error)
+    }
+}
+
+impl From<String> for ApiError {
+    fn from(error: String) -> Self {
+        ApiError::Unexpected(error)
+    }
+}
+
+impl From<reqwest::Error> for ApiError {
+    fn from(error: reqwest::Error) -> Self {
+        // Only convert to HttpError if there's an actual HTTP status code
+        if let Some(_status) = error.status() {
+            // This is a real HTTP error (4xx, 5xx)
+            ApiError::Http(HttpError::from(error))
+        } else if error.is_decode() {
+            // Response body decode error (not JSON deserialization)
+            ApiError::Decode(format!("Response decoding error: {:?}", error))
+        } else if error.is_timeout() {
+            ApiError::Unexpected("Request timeout".to_string())
+        } else if error.is_connect() {
+            ApiError::Unexpected("Connection error".to_string())
+        } else {
+            // Other errors (TLS, request building, redirect loops, etc.)
+            ApiError::Unexpected("Request error".to_string())
+        }
+    }
+}
+
+/// Represents an HTTP error
+/// # Fields
+/// * `status` - The HTTP status code
+/// * `url` - The URL of the request
+/// * `body` - The body of the response
 #[derive(Debug)]
 pub struct HttpError {
     pub status: StatusCode,
@@ -41,7 +89,7 @@ impl AsyncHttpClient {
     pub async fn get(
         &self,
         path: Option<&str>,
-        query: Option<HashMap<&str, &str>>,
+        query: Option<HashMap<String, String>>,
     ) -> Result<Response, HttpError> {
         let url = if let Some(p) = path {
             format!("{}{}", self.base_url, p)
@@ -52,7 +100,12 @@ impl AsyncHttpClient {
         let mut request = self.client.get(&url);
 
         if let Some(query_params) = query {
-            request = request.query(&query_params);
+            // Convert HashMap<String, String> to HashMap<&str, &str> for reqwest
+            let query_refs: HashMap<&str, &str> = query_params
+                .iter()
+                .map(|(k, v)| (k.as_str(), v.as_str()))
+                .collect();
+            request = request.query(&query_refs);
         }
 
         let response = request.send().await?;
@@ -104,6 +157,11 @@ impl AsyncHttpClient {
         let response = request.send().await?;
         response.error_for_status()
     }
+}
+
+/// Trait for converting DTOs to query parameters
+pub trait ToQueryParams {
+    fn to_query_params(&self) -> HashMap<String, String>;
 }
 
 pub trait Retryable {

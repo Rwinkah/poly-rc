@@ -14,23 +14,22 @@ async fn main() {
     println!("Hello, world!");
     let pub_client = PubClient::new();
     let result = pub_client
-        .get_market_price(MarketPriceDTO {
+        .get_midpoint_price(TokenId {
             token_id:
-                "74693001438530122232203015312493762287298251343693104958670789864026566743517"
+                "3528283556348201539631245411187096877510646355957147907959655671383904729512"
                     .to_string(),
-            side: Side::BUY,
         })
         .await;
 
     match result {
         Ok(res) => {
-            println!("found orderbook summaries: {}", res.price);
+            println!("found orderbook summaries: {:?}", res);
         }
         Err(err) => {
             println!("error: could not get orderbook summaries");
-            println!("{}", err.body);
-            println!("{}", err.status);
-            println!("{}", err.url.unwrap());
+            println!("body:{}", err.body);
+            println!("status:{}", err.status);
+            println!("url:{}", err.url.unwrap());
         }
     }
 }

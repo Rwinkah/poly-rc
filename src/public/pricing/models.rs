@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use std::fmt;
 
+use crate::public::client::ToQueryParams;
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,6 +36,11 @@ pub struct MarketPriceDTO {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketPrice {
     pub price: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MidpointPrice {
+    pub mid: String,
 }
 
 #[derive(Debug, Clone)]
@@ -93,4 +100,39 @@ pub struct PriceHistoryDTO {
     pub end_ts: Option<u128>,
     pub interval: Option<PriceInterval>,
     pub fidelity: Option<u128>,
+}
+
+impl ToQueryParams for MarketPriceDTO {
+    fn to_query_params(&self) -> HashMap<String, String> {
+        HashMap::from([
+            ("token_id".to_string(), self.token_id.clone()),
+            ("side".to_string(), self.side.as_str().to_string()),
+        ])
+    }
+}
+
+impl ToQueryParams for PriceHistoryDTO {
+    fn to_query_params(&self) -> HashMap<String, String> {
+        let mut params = HashMap::new();
+
+        params.insert("market".to_string(), self.market.clone());
+
+        if let Some(start_ts) = self.start_ts {
+            params.insert("startTs".to_string(), start_ts.to_string());
+        }
+
+        if let Some(end_ts) = self.end_ts {
+            params.insert("endTs".to_string(), end_ts.to_string());
+        }
+
+        if let Some(interval) = &self.interval {
+            params.insert("interval".to_string(), interval.as_str().to_string());
+        }
+
+        if let Some(fidelity) = self.fidelity {
+            params.insert("fidelity".to_string(), fidelity.to_string());
+        }
+
+        params
+    }
 }

@@ -1,7 +1,6 @@
 // use reqwest;
 
-use crate::public::client::{AsyncHttpClient, HttpError};
-use std::collections::HashMap;
+use crate::public::client::{AsyncHttpClient, HttpError, ToQueryParams};
 pub mod models;
 use async_trait::async_trait;
 pub use models::{Order, OrderbookRequestDTO, OrderbookSummary, TokenId};
@@ -16,7 +15,7 @@ pub trait OrderBook {
     /// * `Result<OrderbookSummary, HttpError>` - The orderbook summary for the given token id
     async fn get_orderbook_summary(&self, data: TokenId) -> Result<OrderbookSummary, HttpError> {
         let client = self.get_clob_client();
-        let query = HashMap::from([("token_id", data.token_id.as_str())]);
+        let query = data.to_query_params();
         let response = client.get(Some("/book"), Some(query)).await?;
         let text = response.text().await?;
         let orderbook: OrderbookSummary = serde_json::from_str(&text).unwrap();
