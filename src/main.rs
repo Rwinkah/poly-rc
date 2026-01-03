@@ -1,29 +1,33 @@
-use poly_rc::public::orderbook::{
-    OrderbookRequestDTO, TokenId, get_orderbook_summary, post_orderbook_summaries,
+#![allow(unused_imports)]
+
+use poly_rc::public::{
+    OrderbookRequestDTO, PubClient, TokenId,
+    orderbook::OrderBook,
+    pricing::{
+        Pricing,
+        models::{MarketPriceDTO, Side},
+    },
 };
 
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
-    let result = post_orderbook_summaries(OrderbookRequestDTO {
-        token_ids: vec![TokenId {
+    let pub_client = PubClient::new();
+    let result = pub_client
+        .get_market_price(MarketPriceDTO {
             token_id:
-                "97823728760211534985313322325333593565602743916910593548467619829591464019021"
+                "74693001438530122232203015312493762287298251343693104958670789864026566743517"
                     .to_string(),
-        }],
-    })
-    .await;
+            side: Side::BUY,
+        })
+        .await;
 
     match result {
         Ok(res) => {
-            for item in res {
-                println!(
-                    "market:{}, min_order_size:{}",
-                    item.market, item.min_order_size
-                )
-            }
+            println!("found orderbook summaries: {}", res.price);
         }
         Err(err) => {
+            println!("error: could not get orderbook summaries");
             println!("{}", err.body);
             println!("{}", err.status);
             println!("{}", err.url.unwrap());
