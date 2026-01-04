@@ -2,9 +2,13 @@ use reqwest::{Error as ReqwestError, StatusCode, Url};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt};
 
-/// Trait for converting DTOs to query parameters
-pub trait ToQueryParams {
-    fn to_query_params(&self) -> HashMap<String, String>;
+/// Converts a value into HTTP URL query parameters.
+///
+/// Types implementing this trait define how their data
+/// is represented as key–value pairs suitable for inclusion
+/// in the query string of an HTTP request.
+pub trait QueryParams {
+    fn as_query_params(&self) -> HashMap<String, String>;
 }
 
 /// Represents a token identifier used across multiple API endpoints
@@ -13,8 +17,8 @@ pub struct TokenId {
     pub token_id: String,
 }
 
-impl ToQueryParams for TokenId {
-    fn to_query_params(&self) -> HashMap<String, String> {
+impl QueryParams for TokenId {
+    fn as_query_params(&self) -> HashMap<String, String> {
         HashMap::from([("token_id".to_string(), self.token_id.clone())])
     }
 }
@@ -65,7 +69,7 @@ impl From<ReqwestError> for ApiError {
 
 impl From<serde_json::Error> for ApiError {
     fn from(error: serde_json::Error) -> Self {
-        ApiError::Decode(format!("JSON decode error: {}", error))
+        ApiError::Decode(format!("JSON decode error: {error}"))
     }
 }
 

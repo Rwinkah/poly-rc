@@ -11,6 +11,7 @@ pub mod spreads;
 
 pub use crate::shared::{ApiError, HttpError, TokenId};
 pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
+
 pub struct PubClient {
     clob_client: AsyncHttpClient,
 }

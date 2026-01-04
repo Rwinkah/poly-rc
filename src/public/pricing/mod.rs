@@ -1,5 +1,5 @@
 use crate::public::client::AsyncHttpClient;
-use crate::shared::{ApiError, ToQueryParams, TokenId};
+use crate::shared::{ApiError, QueryParams, TokenId};
 use async_trait::async_trait;
 pub mod models;
 use models::{BidAskSpreads, MarketPrice, MarketPriceDTO, MidpointPrice, PriceHistoryDTO};
@@ -15,7 +15,7 @@ pub trait Pricing {
     /// * `Result<MarketPrice, HttpError>` - The market price for the given token id and side
     async fn get_market_price(&self, data: MarketPriceDTO) -> Result<MarketPrice, ApiError> {
         let client = self.get_clob_client();
-        let query = data.to_query_params();
+        let query = data.as_query_params();
         let response = client.get(Some("/price"), Some(query)).await?;
         let price: MarketPrice = response.json().await?;
         Ok(price)
@@ -43,7 +43,7 @@ pub trait Pricing {
     /// * `Result<MarketPrice, ApiError>` - The midpoint price for the given token id
     async fn get_midpoint_price(&self, data: TokenId) -> Result<MidpointPrice, ApiError> {
         let client = self.get_clob_client();
-        let query = data.to_query_params();
+        let query = data.as_query_params();
         let response = client.get(Some("/midpoint"), Some(query)).await?;
         let price: MidpointPrice = response.json().await?;
         Ok(price)
@@ -56,7 +56,7 @@ pub trait Pricing {
     /// * `Result<Vec<MarketPrice>, ApiError>` - The price history for the given market
     async fn get_price_history(&self, data: PriceHistoryDTO) -> Result<Vec<MarketPrice>, ApiError> {
         let client = self.get_clob_client();
-        let query = data.to_query_params();
+        let query = data.as_query_params();
         let response = client.get(Some("/price/history"), Some(query)).await?;
         let prices: Vec<MarketPrice> = response.json().await?;
         Ok(prices)

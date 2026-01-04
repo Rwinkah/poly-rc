@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::shared::{Side, ToQueryParams};
+use crate::shared::{QueryParams, Side};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,8 +83,8 @@ pub struct PriceHistoryDTO {
     pub fidelity: Option<u128>,
 }
 
-impl ToQueryParams for MarketPriceDTO {
-    fn to_query_params(&self) -> HashMap<String, String> {
+impl QueryParams for MarketPriceDTO {
+    fn as_query_params(&self) -> HashMap<String, String> {
         HashMap::from([
             ("token_id".to_string(), self.token_id.clone()),
             ("side".to_string(), self.side.as_str().to_string()),
@@ -92,8 +92,8 @@ impl ToQueryParams for MarketPriceDTO {
     }
 }
 
-impl ToQueryParams for PriceHistoryDTO {
-    fn to_query_params(&self) -> HashMap<String, String> {
+impl QueryParams for PriceHistoryDTO {
+    fn as_query_params(&self) -> HashMap<String, String> {
         let mut params = HashMap::new();
 
         params.insert("market".to_string(), self.market.clone());

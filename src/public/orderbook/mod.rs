@@ -1,7 +1,7 @@
 // use reqwest;
 
 use crate::public::client::AsyncHttpClient;
-use crate::shared::{ApiError, ToQueryParams, TokenId};
+use crate::shared::{ApiError, QueryParams, TokenId};
 pub mod models;
 use async_trait::async_trait;
 pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
@@ -16,7 +16,7 @@ pub trait OrderBook {
     /// * `Result<OrderbookSummary, ApiError>` - The orderbook summary for the given token id
     async fn get_orderbook_summary(&self, data: TokenId) -> Result<OrderbookSummary, ApiError> {
         let client = self.get_clob_client();
-        let query = data.to_query_params();
+        let query = data.as_query_params();
         let response = client.get(Some("/book"), Some(query)).await?;
         let text = response.text().await?;
         let orderbook: OrderbookSummary = serde_json::from_str(&text).unwrap();
