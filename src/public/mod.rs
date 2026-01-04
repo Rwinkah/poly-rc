@@ -2,9 +2,7 @@ pub mod orderbook;
 pub mod pricing;
 pub mod sports;
 pub mod spreads;
-
-use orderbook::OrderBook;
-use pricing::Pricing;
+pub mod tags;
 
 use crate::public::sports::Sports;
 pub use crate::shared::{
@@ -12,6 +10,9 @@ pub use crate::shared::{
     client::AsyncHttpClient,
     constants::{CLOB_ENDPOINT, GAMMA_ENDPOINT},
 };
+use orderbook::OrderBook;
+use pricing::Pricing;
+use tags::Tags;
 
 pub struct PubClient {
     clob_client: AsyncHttpClient,
@@ -40,6 +41,12 @@ impl Pricing for PubClient {
 }
 
 impl Sports for PubClient {
+    fn get_gamma_client(&self) -> &AsyncHttpClient {
+        &self.gamma_client
+    }
+}
+
+impl Tags for PubClient {
     fn get_gamma_client(&self) -> &AsyncHttpClient {
         &self.gamma_client
     }

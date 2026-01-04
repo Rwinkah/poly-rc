@@ -8,7 +8,7 @@ use crate::shared::QueryParams;
 pub struct SportsTeamsDTO {
     pub limit: Option<i16>,
     pub offset: Option<i16>,
-    pub order: Option<String>,
+    pub order: Option<Vec<String>>,
     pub ascending: Option<bool>,
     pub league: Option<Vec<String>>,
     pub name: Option<Vec<String>>,
@@ -25,7 +25,14 @@ impl QueryParams for SportsTeamsDTO {
             query.insert("offset".to_string(), offset.to_string());
         }
         if let Some(order) = &self.order {
-            query.insert("order".to_string(), order.to_string());
+            let mut order_str = String::new();
+            for (i, order) in order.iter().enumerate() {
+                order_str.push_str(order);
+                if i < order.len() - 1 {
+                    order_str.push(',');
+                }
+            }
+            query.insert("order".to_string(), order_str);
         }
         if let Some(ascending) = self.ascending {
             query.insert("ascending".to_string(), ascending.to_string());
