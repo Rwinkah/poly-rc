@@ -26,10 +26,8 @@ async fn main() {
             println!("found orderbook summaries: {:?}", res);
         }
         Err(err) => {
-            println!("error: could not get orderbook summaries");
-            println!("body:{}", err.body);
-            println!("status:{}", err.status);
-            println!("url:{}", err.url.unwrap());
+            println!("error: could not get midpoint price");
+            println!("error: {:?}", err);
         }
     }
 }

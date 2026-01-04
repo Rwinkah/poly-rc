@@ -1,5 +1,5 @@
 use reqwest::{Client as ReqwestClient, Error, Response, StatusCode, Url};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -15,6 +15,7 @@ pub struct AsyncHttpClient {
 /// * `Http(HttpError)` - An HTTP error
 /// * `Decode(serde_json::Error)` - A JSON decoding error
 /// * `Unexpected(String)` - An unexpected error
+#[derive(Debug, Serialize, Deserialize)]
 pub enum ApiError {
     Http(HttpError),
     Decode(String),
@@ -58,9 +59,9 @@ impl From<reqwest::Error> for ApiError {
 /// * `status` - The HTTP status code
 /// * `url` - The URL of the request
 /// * `body` - The body of the response
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct HttpError {
-    pub status: StatusCode,
+    pub status: u16,
     pub url: Option<Url>,
     pub body: String,
 }
@@ -68,7 +69,10 @@ pub struct HttpError {
 impl From<reqwest::Error> for HttpError {
     fn from(error: reqwest::Error) -> Self {
         HttpError {
-            status: error.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            status: error
+                .status()
+                .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
+                .as_u16(),
             url: error.url().cloned(),
             body: error.to_string(),
         }
@@ -90,7 +94,7 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         query: Option<HashMap<String, String>>,
-    ) -> Result<Response, HttpError> {
+    ) -> Result<Response, ApiError> {
         let url = if let Some(p) = path {
             format!("{}{}", self.base_url, p)
         } else {
@@ -114,11 +118,11 @@ impl AsyncHttpClient {
         if status.is_client_error() || status.is_server_error() {
             let url = response.url().clone();
             let error_body = response.text().await?;
-            return Err(HttpError {
-                status,
+            return Err(ApiError::Http(HttpError {
+                status: status.as_u16(),
                 url: Some(url),
                 body: error_body,
-            });
+            }));
         }
 
         Ok(response)
@@ -129,7 +133,7 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         body: Option<T>,
-    ) -> Result<Response, Error> {
+    ) -> Result<Response, ApiError> {
         let url = format!("{}{}", self.base_url, path.unwrap_or(""));
         let mut request = self.client.post(&url);
 
@@ -138,7 +142,7 @@ impl AsyncHttpClient {
         }
 
         let response = request.send().await?;
-        response.error_for_status()
+        Ok(response.error_for_status()?)
     }
 
     /// Send a PUT request to the API
@@ -146,7 +150,7 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         body: Option<T>,
-    ) -> Result<Response, Error> {
+    ) -> Result<Response, ApiError> {
         let url = format!("{}{}", self.base_url, path.unwrap_or(""));
         let mut request = self.client.put(&url);
 
@@ -155,7 +159,7 @@ impl AsyncHttpClient {
         }
 
         let response = request.send().await?;
-        response.error_for_status()
+        Ok(response.error_for_status()?)
     }
 }
 

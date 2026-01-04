@@ -1,6 +1,6 @@
 // use reqwest;
 
-use crate::public::client::{AsyncHttpClient, HttpError, ToQueryParams};
+use crate::public::client::{ApiError, AsyncHttpClient, ToQueryParams};
 pub mod models;
 use async_trait::async_trait;
 pub use models::{Order, OrderbookRequestDTO, OrderbookSummary, TokenId};
@@ -12,8 +12,8 @@ pub trait OrderBook {
     /// # Arguments
     /// * `data` - The token id to get the orderbook summary for
     /// # Returns
-    /// * `Result<OrderbookSummary, HttpError>` - The orderbook summary for the given token id
-    async fn get_orderbook_summary(&self, data: TokenId) -> Result<OrderbookSummary, HttpError> {
+    /// * `Result<OrderbookSummary, ApiError>` - The orderbook summary for the given token id
+    async fn get_orderbook_summary(&self, data: TokenId) -> Result<OrderbookSummary, ApiError> {
         let client = self.get_clob_client();
         let query = data.to_query_params();
         let response = client.get(Some("/book"), Some(query)).await?;
@@ -26,11 +26,11 @@ pub trait OrderBook {
     /// # Arguments
     /// * `data` - The list of token ids to get the orderbook summaries for
     /// # Returns
-    /// * `Result<Vec<OrderbookSummary>, HttpError>` - The orderbook summaries for the given list of token ids
+    /// * `Result<Vec<OrderbookSummary>, ApiError>` - The orderbook summaries for the given list of token ids
     async fn post_orderbook_summaries(
         &self,
         data: Vec<TokenId>,
-    ) -> Result<Vec<OrderbookSummary>, HttpError> {
+    ) -> Result<Vec<OrderbookSummary>, ApiError> {
         let client = self.get_clob_client();
         let response = client.post(Some("/books"), Some(data)).await?;
         let orderbook: Vec<OrderbookSummary> = response.json().await?;

@@ -43,6 +43,11 @@ pub struct MidpointPrice {
     pub mid: String,
 }
 
+/// Represents bid-ask spreads for multiple token IDs
+/// Maps token ID (String) to spread value (String)
+/// This is a type alias for clarity - the API returns a JSON object
+pub type BidAskSpreads = HashMap<String, String>;
+
 #[derive(Debug, Clone)]
 pub enum PriceInterval {
     Minute1,
