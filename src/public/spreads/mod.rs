@@ -1,7 +1,6 @@
-use crate::public::client::AsyncHttpClient;
 use async_trait::async_trait;
 pub mod models;
-use crate::shared::{ApiError, QueryParams};
+use crate::shared::{ApiError, QueryParams, client::AsyncHttpClient};
 use models::*;
 #[async_trait]
 pub trait Spreads {

@@ -1,16 +1,12 @@
-use crate::public::{
-    client::AsyncHttpClient,
-    orderbook::{OrderBook, models},
-    pricing::Pricing,
-};
-
-pub mod client;
 pub mod orderbook;
 pub mod pricing;
+pub mod sports;
 pub mod spreads;
 
-pub use crate::shared::{ApiError, HttpError, TokenId};
-pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
+use orderbook::OrderBook;
+use pricing::Pricing;
+
+pub use crate::shared::{ApiError, HttpError, TokenId, client::AsyncHttpClient};
 
 pub struct PubClient {
     clob_client: AsyncHttpClient,

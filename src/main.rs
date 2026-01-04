@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 
 use poly_rc::public::{
-    OrderbookRequestDTO, PubClient, TokenId,
+    PubClient, TokenId,
     orderbook::OrderBook,
     pricing::{Pricing, models::MarketPriceDTO},
 };

@@ -15,6 +15,17 @@ pub struct MarketPrice {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PricesHistory {
+    pub history: Vec<HistoryItem>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HistoryItem {
+    pub t: String,
+    pub p: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MidpointPrice {
     pub mid: String,
 }
