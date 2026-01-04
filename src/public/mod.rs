@@ -5,6 +5,7 @@ use crate::public::{
 };
 
 pub mod client;
+pub mod events;
 pub mod orderbook;
 pub mod pricing;
 pub mod spreads;

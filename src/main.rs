@@ -6,6 +6,7 @@ use poly_rc::public::{
     pricing::{Pricing, models::MarketPriceDTO},
 };
 
+use poly_rc::public::events;
 use poly_rc::shared::Side;
 
 #[tokio::main]
@@ -29,4 +30,6 @@ async fn main() {
             println!("error: {:?}", err);
         }
     }
+
+    // let second_client = PubClient::new();
 }
