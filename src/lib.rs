@@ -1,4 +1,5 @@
 pub mod public;
+pub mod shared;
 
 #[cfg(test)]
 mod tests {

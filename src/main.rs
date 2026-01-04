@@ -3,11 +3,10 @@
 use poly_rc::public::{
     OrderbookRequestDTO, PubClient, TokenId,
     orderbook::OrderBook,
-    pricing::{
-        Pricing,
-        models::{MarketPriceDTO, Side},
-    },
+    pricing::{Pricing, models::MarketPriceDTO},
 };
+
+use poly_rc::shared::Side;
 
 #[tokio::main]
 async fn main() {

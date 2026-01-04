@@ -1,7 +1,5 @@
-use crate::public::{
-    TokenId,
-    client::{ApiError, AsyncHttpClient, ToQueryParams},
-};
+use crate::public::client::AsyncHttpClient;
+use crate::shared::{ApiError, ToQueryParams, TokenId};
 use async_trait::async_trait;
 pub mod models;
 use models::{BidAskSpreads, MarketPrice, MarketPriceDTO, MidpointPrice, PriceHistoryDTO};

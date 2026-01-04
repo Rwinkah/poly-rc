@@ -7,9 +7,10 @@ use crate::public::{
 pub mod client;
 pub mod orderbook;
 pub mod pricing;
+pub mod spreads;
 
-pub use client::HttpError;
-pub use models::{Order, OrderbookRequestDTO, OrderbookSummary, TokenId};
+pub use crate::shared::{ApiError, HttpError, TokenId};
+pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
 pub struct PubClient {
     clob_client: AsyncHttpClient,
 }

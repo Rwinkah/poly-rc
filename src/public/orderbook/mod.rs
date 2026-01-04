@@ -1,9 +1,10 @@
 // use reqwest;
 
-use crate::public::client::{ApiError, AsyncHttpClient, ToQueryParams};
+use crate::public::client::AsyncHttpClient;
+use crate::shared::{ApiError, ToQueryParams, TokenId};
 pub mod models;
 use async_trait::async_trait;
-pub use models::{Order, OrderbookRequestDTO, OrderbookSummary, TokenId};
+pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
 
 #[async_trait]
 pub trait OrderBook {

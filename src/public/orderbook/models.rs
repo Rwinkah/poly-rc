@@ -1,6 +1,5 @@
-use crate::public::client::ToQueryParams;
+use crate::shared::TokenId;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Represents a single order (bid or ask)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -23,20 +22,8 @@ pub struct OrderbookSummary {
     pub neg_risk: bool,
 }
 
-/// Represents a token identifier for orderbook queries
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TokenId {
-    pub token_id: String,
-}
-
 /// Request DTO for orderbook queries
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrderbookRequestDTO {
     pub token_ids: Vec<TokenId>,
-}
-
-impl ToQueryParams for TokenId {
-    fn to_query_params(&self) -> HashMap<String, String> {
-        HashMap::from([("token_id".to_string(), self.token_id.clone())])
-    }
 }

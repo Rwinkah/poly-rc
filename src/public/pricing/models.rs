@@ -1,31 +1,7 @@
 use std::collections::HashMap;
-use std::fmt;
 
-use crate::public::client::ToQueryParams;
+use crate::shared::{Side, ToQueryParams};
 use serde::{Deserialize, Serialize, Serializer};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Side {
-    BUY,
-    SELL,
-}
-
-impl Side {
-    pub fn as_str(&self) -> &str {
-        match self {
-            Side::BUY => "BUY",
-            Side::SELL => "SELL",
-        }
-    }
-}
-impl fmt::Display for Side {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Side::BUY => write!(f, "BUY"),
-            Side::SELL => write!(f, "SELL"),
-        }
-    }
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketPriceDTO {
