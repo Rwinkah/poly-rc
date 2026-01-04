@@ -4,6 +4,7 @@ use poly_rc::public::{
     PubClient, TokenId,
     orderbook::OrderBook,
     pricing::{Pricing, models::MarketPriceDTO},
+    sports::{Sports, models::SportsTeamsDTO},
 };
 
 use poly_rc::shared::Side;
@@ -13,10 +14,14 @@ async fn main() {
     println!("Hello, world!");
     let pub_client = PubClient::new();
     let result = pub_client
-        .get_midpoint_price(TokenId {
-            token_id:
-                "3754334285616101662116579198768376424388375814028174583822278684167937945318"
-                    .to_string(),
+        .get_sports_teams(SportsTeamsDTO {
+            limit: Some(1),
+            offset: Some(0),
+            order: Some("name".to_string()),
+            ascending: Some(true),
+            league: None,
+            name: None,
+            abbreviation: None,
         })
         .await;
 
