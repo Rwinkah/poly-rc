@@ -14,6 +14,7 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some("/events"), Some(query)).await?;
         let events: Vec<EventInfo> = response.json().await?;
+        dbg!(events.clone());
         Ok(events)
     }
 
@@ -23,6 +24,7 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some(path.as_str()), Some(query)).await?;
         let event: EventInfo = response.json().await?;
+        dbg!(event.clone());
         Ok(event)
     }
 
@@ -41,5 +43,86 @@ pub trait Events {
         let response = client.get(Some(path.as_str()), None).await?;
         let event: EventInfo = response.json().await?;
         Ok(event)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::public::PubClient;
+
+    #[tokio::test]
+    async fn test_get_events() {
+        let client = PubClient::new();
+
+        let events_1 = client
+            .get_events(EventDTO {
+                ..Default::default()
+            })
+            .await;
+        let events_2 = client
+            .get_events(EventDTO {
+                active: Some(true),
+                ..Default::default()
+            })
+            .await;
+        let events_3 = client
+            .get_events(EventDTO {
+                closed: Some(true),
+                ..Default::default()
+            })
+            .await;
+        let events_4 = client
+            .get_events(EventDTO {
+                limit: Some(5),
+                ..Default::default()
+            })
+            .await;
+        let events_5 = client
+            .get_events(EventDTO {
+                include_chat: Some(true),
+                ..Default::default()
+            })
+            .await;
+        let events_6 = client
+            .get_events(EventDTO {
+                include_template: Some(true),
+                ..Default::default()
+            })
+            .await;
+
+        assert!(events_1.is_ok());
+        assert!(events_2.is_ok());
+        assert!(events_3.is_ok());
+        assert!(events_4.is_ok());
+        assert!(events_5.is_ok());
+        assert!(events_6.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_event() {
+        let client = PubClient::new();
+
+        let event_1 = client
+            .get_event(
+                String::from("2909"),
+                EventDTO {
+                    include_chat: Some(true),
+                    ..Default::default()
+                },
+            )
+            .await;
+        let event_2 = client
+            .get_event(
+                String::from("2909"),
+                EventDTO {
+                    include_template: Some(true),
+                    ..Default::default()
+                },
+            )
+            .await;
+
+        assert!(event_1.is_ok());
+        assert!(event_2.is_ok());
     }
 }

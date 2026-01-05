@@ -152,9 +152,28 @@ impl QueryParams for EventDTO {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EventInfo {
     pub id: String,
-    pub slug: String,
-    pub active: bool,
-    pub closed: bool,
+    pub slug: Option<String>,
+    pub title: Option<String>,
+    pub ticker: Option<String>,
+    pub subtitle: Option<String>,
+    pub description: Option<String>,
+
+    #[serde(rename = "resolutionSource")]
+    pub resolution_source: Option<String>,
+    #[serde(rename = "creationDate")]
+    pub creation_date: Option<String>,
+    #[serde(rename = "startDate")]
+    pub start_date: Option<String>,
+    #[serde(rename = "endDate")]
+    pub end_date: Option<String>,
+
+    pub image: Option<String>,
+    pub icon: Option<String>,
+    pub active: Option<bool>,
+    pub closed: Option<bool>,
+    pub restricted: Option<bool>,
+    pub liquidity: Option<f64>,
+    pub volume: Option<f64>,
     // pub tags: Vec<String>,
 }
 
