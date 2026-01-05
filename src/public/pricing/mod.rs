@@ -1,5 +1,4 @@
-use crate::public::client::AsyncHttpClient;
-use crate::shared::{ApiError, QueryParams, TokenId};
+use crate::shared::{ApiError, QueryParams, TokenId, client::AsyncHttpClient};
 use async_trait::async_trait;
 pub mod models;
 use models::{BidAskSpreads, MarketPrice, MarketPriceDTO, MidpointPrice, PriceHistoryDTO};
@@ -76,4 +75,6 @@ pub trait Pricing {
         let spreads: BidAskSpreads = response.json().await?;
         Ok(spreads)
     }
+
+    // async fn get_prices_history(&self, data: )
 }

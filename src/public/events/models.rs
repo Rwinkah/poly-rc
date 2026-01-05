@@ -8,6 +8,8 @@ pub enum EventField {
     Active(Option<bool>),
     Closed(Option<bool>),
     Limit(Option<u32>),
+    IncludeChat(Option<bool>),
+    IncludeTemplate(Option<bool>),
 }
 
 impl EventField {
@@ -30,6 +32,22 @@ impl EventField {
                 return value;
             }
             Self::Limit(value) => {
+                let value = if value.is_none() {
+                    String::from("")
+                } else {
+                    value.unwrap().to_string()
+                };
+                return value;
+            }
+            Self::IncludeChat(value) => {
+                let value = if value.is_none() {
+                    String::from("")
+                } else {
+                    value.unwrap().to_string()
+                };
+                return value;
+            }
+            Self::IncludeTemplate(value) => {
                 let value = if value.is_none() {
                     String::from("")
                 } else {
@@ -63,16 +81,32 @@ impl EventField {
                     return true;
                 }
             }
+            Self::IncludeChat(value) => {
+                if value.is_none() {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            Self::IncludeTemplate(value) => {
+                if value.is_none() {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EventDTO {
     pub active: Option<bool>,
     pub closed: Option<bool>,
     pub limit: Option<u32>,
+    pub include_chat: Option<bool>,
+    pub include_template: Option<bool>,
 }
 
 impl EventDTO {
@@ -81,6 +115,8 @@ impl EventDTO {
             "active" => Some(EventField::Active(self.active)),
             "closed" => Some(EventField::Closed(self.closed)),
             "limit" => Some(EventField::Limit(self.limit)),
+            "include_chat" => Some(EventField::IncludeChat(self.include_chat)),
+            "include_template" => Some(EventField::IncludeTemplate(self.include_template)),
             _ => None,
         }
     }
@@ -108,4 +144,18 @@ impl QueryParams for EventDTO {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EventInfo {}
+pub struct EventInfo {
+    pub id: String,
+    pub slug: String,
+    pub active: bool,
+    pub closed: bool,
+    // pub tags: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventTag {}
+// {
+// pub id: u32,
+// pub label: Option<String>,
+// pub slug: Option<String>,
+// }
