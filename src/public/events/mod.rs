@@ -28,12 +28,12 @@ pub trait Events {
         Ok(event)
     }
 
-    async fn get_event_tags(&self, id: String) -> Result<EventTag, ApiError> {
+    async fn get_event_tags(&self, id: String) -> Result<Vec<EventTag>, ApiError> {
         let path = format!("{}{}/tags", "/events/", id);
         println!("🚀 {path}");
         let client = self.get_gamma_client();
         let response = client.get(Some(path.as_str()), None).await?;
-        let event_tag = response.json().await?;
+        let event_tag: Vec<EventTag> = response.json().await?;
         Ok(event_tag)
     }
 
