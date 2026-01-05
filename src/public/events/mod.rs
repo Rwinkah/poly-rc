@@ -14,7 +14,6 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some("/events"), Some(query)).await?;
         let events: Vec<EventInfo> = response.json().await?;
-        dbg!(events.clone());
         Ok(events)
     }
 
@@ -24,7 +23,6 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some(path.as_str()), Some(query)).await?;
         let event: EventInfo = response.json().await?;
-        dbg!(event.clone());
         Ok(event)
     }
 
@@ -34,7 +32,6 @@ pub trait Events {
         let client = self.get_gamma_client();
         let response = client.get(Some(path.as_str()), None).await?;
         let event_tag: Vec<EventTag> = response.json().await?;
-        dbg!(event_tag.clone());
         Ok(event_tag)
     }
 
