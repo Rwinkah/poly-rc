@@ -1,7 +1,15 @@
+use crate::public::{orderbook::OrderBook, pricing::Pricing};
+
+// pub mod client;
+// pub mod events;
+
+pub mod events;
 pub mod orderbook;
 pub mod pricing;
 pub mod sports;
 pub mod spreads;
+
+use crate::public::events::Events;
 pub mod tags;
 
 use crate::public::sports::Sports;
@@ -10,8 +18,7 @@ pub use crate::shared::{
     client::AsyncHttpClient,
     constants::{CLOB_ENDPOINT, GAMMA_ENDPOINT},
 };
-use orderbook::OrderBook;
-use pricing::Pricing;
+
 use tags::Tags;
 
 pub struct PubClient {
@@ -41,6 +48,12 @@ impl Pricing for PubClient {
 }
 
 impl Sports for PubClient {
+    fn get_gamma_client(&self) -> &AsyncHttpClient {
+        &self.gamma_client
+    }
+}
+
+impl Events for PubClient {
     fn get_gamma_client(&self) -> &AsyncHttpClient {
         &self.gamma_client
     }
