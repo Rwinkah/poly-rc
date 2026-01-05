@@ -34,6 +34,7 @@ pub trait Events {
         let client = self.get_gamma_client();
         let response = client.get(Some(path.as_str()), None).await?;
         let event_tag: Vec<EventTag> = response.json().await?;
+        dbg!(event_tag.clone());
         Ok(event_tag)
     }
 
@@ -124,5 +125,25 @@ mod tests {
 
         assert!(event_1.is_ok());
         assert!(event_2.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_event_tags() {
+        let client = PubClient::new();
+
+        let event_tags = client.get_event_tags(String::from("2909"));
+
+        assert!(event_tags.await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_event_by_slug() {
+        let client = PubClient::new();
+
+        let event = client.get_event_by_slug(String::from(
+            "will-surojit-chatterjee-or-matt-huang-win-in-their-cryptochamps-finals-chess-match",
+        ));
+
+        assert!(event.await.is_ok());
     }
 }
