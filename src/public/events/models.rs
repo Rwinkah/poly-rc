@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use crate::shared::{QueryParams, Side};
-use serde::{Deserialize, Serialize, Serializer};
+use crate::shared::QueryParams;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub enum EventField {
@@ -159,9 +160,18 @@ pub struct EventInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EventTag {}
-// {
-// pub id: u32,
-// pub label: Option<String>,
-// pub slug: Option<String>,
-// }
+#[serde(rename_all = "camelCase")]
+pub struct EventTag {
+    pub id: String,
+    pub label: String,
+    pub slug: String,
+    pub force_show: bool,
+    pub requires_translation: bool,
+    pub updated_at: DateTime<Utc>,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_by: Option<i32>,
+    pub updated_by: Option<i32>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub force_hide: Option<bool>,
+    pub is_carousel: Option<bool>,
+}

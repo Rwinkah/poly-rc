@@ -16,47 +16,27 @@ use poly_rc::shared::Side;
 async fn main() {
     println!("Hello, world!");
     let pub_client = PubClient::new();
-    let result = pub_client
-        .get_sports_teams(SportsTeamsDTO {
-            limit: Some(1),
-            offset: Some(0),
-            order: Some(vec!["name".to_string()]),
-            ascending: Some(true),
-            league: None,
-            name: None,
-            abbreviation: None,
+
+    let events_result = pub_client
+        .get_events(EventDTO {
+            active: None,
+            closed: Some(true),
+            limit: None,
+            ..Default::default()
         })
         .await;
 
-    match result {
+    match events_result {
         Ok(res) => {
-            println!("found orderbook summaries: {:?}", res);
+            println!("found {} Events", res.len());
+
+            dbg!(res);
         }
         Err(err) => {
-            println!("error: could not get midpoint price");
+            println!("error: could not get Events");
             println!("error: {:?}", err);
         }
     }
-
-    // let events_result = pub_client.get_events(EventDTO {
-    //     active: None,
-    //     closed: Some(true),
-    //     limit: None,
-    //     ..Default::default()
-    // }).await;
-
-    // match events_result {
-    //     Ok(res) => {
-    //         println!("found {} Events", res.len());
-
-    //         dbg!(res);
-
-    //     }
-    //     Err(err) => {
-    //         println!("error: could not get Events");
-    //         println!("error: {:?}", err);
-    //     }
-    // }
 
     // let event_result = pub_client.get_event(
     //     String::from("2895"),
