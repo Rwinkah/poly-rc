@@ -14,7 +14,6 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some("/events"), Some(query)).await?;
         let events: Vec<EventInfo> = response.json().await?;
-        dbg!(events.clone());
         Ok(events)
     }
 
@@ -24,13 +23,11 @@ pub trait Events {
         let query = data.as_query_params();
         let response = client.get(Some(path.as_str()), Some(query)).await?;
         let event: EventInfo = response.json().await?;
-        dbg!(event.clone());
         Ok(event)
     }
 
     async fn get_event_tags(&self, id: String) -> Result<Vec<EventTag>, ApiError> {
         let path = format!("{}{}/tags", "/events/", id);
-        println!("🚀 {path}");
         let client = self.get_gamma_client();
         let response = client.get(Some(path.as_str()), None).await?;
         let event_tag: Vec<EventTag> = response.json().await?;
@@ -124,5 +121,25 @@ mod tests {
 
         assert!(event_1.is_ok());
         assert!(event_2.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_event_tags() {
+        let client = PubClient::new();
+
+        let event_tags = client.get_event_tags(String::from("2909"));
+
+        assert!(event_tags.await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_event_by_slug() {
+        let client = PubClient::new();
+
+        let event = client.get_event_by_slug(String::from(
+            "will-surojit-chatterjee-or-matt-huang-win-in-their-cryptochamps-finals-chess-match",
+        ));
+
+        assert!(event.await.is_ok());
     }
 }
