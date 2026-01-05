@@ -124,7 +124,13 @@ impl EventDTO {
 
 impl QueryParams for EventDTO {
     fn as_query_params(&self) -> HashMap<String, String> {
-        let fields = ["active", "closed", "limit"];
+        let fields = [
+            "active",
+            "closed",
+            "limit",
+            "include_chat",
+            "include_template",
+        ];
 
         let mut query_params = HashMap::new();
         for field in fields {
