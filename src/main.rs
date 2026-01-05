@@ -20,7 +20,7 @@ async fn main() {
         .get_sports_teams(SportsTeamsDTO {
             limit: Some(1),
             offset: Some(0),
-            order: Some("name".to_string()),
+            order: Some(vec!["name".to_string()]),
             ascending: Some(true),
             league: None,
             name: None,
