@@ -7,6 +7,7 @@ A **production-grade Rust SDK** for interacting with the Polymarket API, designe
 
 ## Features
 
+- **Event API** - Get Events as listed on Polymarket
 - **Orderbook API** - Get orderbook summaries for tokens
 - **Pricing API** - Get market prices, midpoint prices, and price history
 - **Sports API** - Query sports teams and metadata
