@@ -2,7 +2,7 @@ use crate::shared::{ApiError, client::AsyncHttpClient};
 pub mod models;
 use crate::shared::QueryParams;
 use async_trait::async_trait;
-use models::{SportsMetadata, SportsTeam, SportsTeamsDTO};
+use models::{MarketTypesResponse, SportsMetadata, SportsTeam, SportsTeamsDTO};
 
 #[async_trait]
 pub trait Sports {
@@ -18,7 +18,6 @@ pub trait Sports {
         let query = data.as_query_params();
         let response = client.get(Some("/teams"), Some(query)).await?;
         let sports_data: Vec<SportsTeam> = response.json().await?;
-        dbg!(sports_data.clone());
         Ok(sports_data)
     }
 
@@ -31,7 +30,6 @@ pub trait Sports {
         let client = self.get_gamma_client();
         let response = client.get(Some("/sports"), None).await?;
         let sports_metadata: Vec<SportsMetadata> = response.json().await?;
-        dbg!(sports_metadata.clone());
         Ok(sports_metadata)
     }
 
@@ -41,8 +39,8 @@ pub trait Sports {
     async fn get_sports_market_types(&self) -> Result<Vec<String>, ApiError> {
         let client = self.get_gamma_client();
         let response = client.get(Some("/sports/market-types"), None).await?;
-        let sports_market_types: Vec<String> = response.json().await?;
-        dbg!(sports_market_types.clone());
+        let response = response.json::<MarketTypesResponse>().await?;
+        let sports_market_types: Vec<String> = response.market_types;
         Ok(sports_market_types)
     }
 }
@@ -73,7 +71,12 @@ mod tests {
                 ..Default::default()
             })
             .await;
-        // let sport_teams_4 = client.get_sports_teams(SportsTeamsDTO { order: Some(), ..Default::default() }).await;
+        let sport_teams_4 = client
+            .get_sports_teams(SportsTeamsDTO {
+                order: Some(vec![String::from("name")]),
+                ..Default::default()
+            })
+            .await;
         let sport_teams_5 = client
             .get_sports_teams(SportsTeamsDTO {
                 ascending: Some(true),
@@ -89,7 +92,7 @@ mod tests {
         assert!(sport_teams_1.is_ok());
         assert!(sport_teams_2.is_ok());
         assert!(sport_teams_3.is_ok());
-        // assert!(sport_teams_4.is_ok());
+        assert!(sport_teams_4.is_ok());
         assert!(sport_teams_5.is_ok());
         assert!(sport_teams_6.is_ok());
     }
@@ -109,7 +112,6 @@ mod tests {
 
         let sport_market_types = client.get_sports_market_types().await;
 
-        dbg!(sport_market_types);
-        // assert!(sport_market_types.is_ok());
+        assert!(sport_market_types.is_ok());
     }
 }

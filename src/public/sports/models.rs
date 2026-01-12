@@ -80,3 +80,9 @@ pub struct SportsMetadata {
     pub tags: String,
     pub series: String,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MarketTypesResponse {
+    pub market_types: Vec<String>,
+}
