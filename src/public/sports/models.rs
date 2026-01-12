@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::shared::QueryParams;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SportsTeamsDTO {
     pub limit: Option<i16>,
     pub offset: Option<i16>,
