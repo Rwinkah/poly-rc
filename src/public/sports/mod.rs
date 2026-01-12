@@ -85,6 +85,7 @@ mod tests {
             .await;
         let sport_teams_6 = client
             .get_sports_teams(SportsTeamsDTO {
+                league: Some(vec![String::from("valorant")]),
                 ..Default::default()
             })
             .await;
