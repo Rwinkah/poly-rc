@@ -37,8 +37,8 @@ pub trait Events {
     async fn get_event_by_slug(&self, slug: String) -> Result<EventInfo, ApiError> {
         let path = format!("{}{}", "/events/slug/", slug);
         let client = self.get_gamma_client();
-        let response = client.get(Some(path.as_str()), None).await?;
-        let event: EventInfo = response.json().await?;
+        let response = client.get(Some(path.as_str()), None).await?; //
+        let event: EventInfo = response.json().await?; //
         Ok(event)
     }
 }
@@ -94,6 +94,8 @@ mod tests {
         assert!(events_4.is_ok());
         assert!(events_5.is_ok());
         assert!(events_6.is_ok());
+
+        // Assert actual Struct values
     }
 
     #[tokio::test]
