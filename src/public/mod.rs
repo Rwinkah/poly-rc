@@ -1,4 +1,4 @@
-use crate::public::{orderbook::OrderBook, pricing::Pricing};
+use crate::public::{orderbook::OrderBook, pricing::Pricing, spreads::Spreads};
 
 // pub mod client;
 // pub mod events;
@@ -62,5 +62,11 @@ impl Events for PubClient {
 impl Tags for PubClient {
     fn get_gamma_client(&self) -> &AsyncHttpClient {
         &self.gamma_client
+    }
+}
+
+impl Spreads for PubClient {
+    fn get_clob_client(&self) -> &AsyncHttpClient {
+        &self.clob_client
     }
 }

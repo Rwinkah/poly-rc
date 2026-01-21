@@ -37,3 +37,43 @@ pub trait OrderBook {
         Ok(orderbook)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::public::PubClient;
+
+    #[tokio::test]
+    async fn test_get_orderbook_summary() {
+        let client = PubClient::new();
+
+        let orderbook = client
+            .get_orderbook_summary(TokenId {
+                token_id: String::from("test_token_id"),
+            })
+            .await;
+
+        if let Err(e) = &orderbook {
+            eprintln!("Orderbook error: {:?}", e);
+        }
+        assert!(orderbook.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_post_orderbook_summaries() {
+        let client = PubClient::new();
+
+        let orderbooks = client
+            .post_orderbook_summaries(vec![
+                TokenId {
+                    token_id: String::from("test_token_id_1"),
+                },
+                TokenId {
+                    token_id: String::from("test_token_id_2"),
+                },
+            ])
+            .await;
+
+        assert!(orderbooks.is_ok());
+    }
+}

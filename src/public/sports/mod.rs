@@ -43,3 +43,61 @@ pub trait Sports {
         Ok(sports_market_types)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::public::PubClient;
+
+    #[tokio::test]
+    async fn test_get_sports_teams() {
+        let client = PubClient::new();
+
+        let teams_1 = client
+            .get_sports_teams(SportsTeamsDTO {
+                limit: None,
+                offset: None,
+                order: None,
+                ascending: None,
+                league: None,
+                name: None,
+                abbreviation: None,
+            })
+            .await;
+        let teams_2 = client
+            .get_sports_teams(SportsTeamsDTO {
+                limit: Some(10),
+                offset: Some(0),
+                order: Some(vec![String::from("name")]),
+                ascending: Some(true),
+                league: Some(vec![String::from("NFL")]),
+                name: None,
+                abbreviation: None,
+            })
+            .await;
+
+        assert!(teams_1.is_ok());
+        assert!(teams_2.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_sports_metadata() {
+        let client = PubClient::new();
+
+        let metadata = client.get_sports_metadata().await;
+
+        assert!(metadata.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_sports_market_types() {
+        let client = PubClient::new();
+
+        let market_types = client.get_sports_market_types().await;
+        if let Err(e) = &market_types {
+            eprintln!("Sports market types error: {:?}", e);
+        }
+
+        assert!(market_types.is_ok());
+    }
+}
