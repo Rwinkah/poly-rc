@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::shared::QueryParams;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SportsTeamsDTO {
     pub limit: Option<i16>,
     pub offset: Option<i16>,
@@ -79,4 +79,10 @@ pub struct SportsMetadata {
     pub ordering: String,
     pub tags: String,
     pub series: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MarketTypesResponse {
+    pub market_types: Vec<String>,
 }
