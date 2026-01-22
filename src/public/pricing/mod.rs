@@ -78,3 +78,21 @@ pub trait Pricing {
 
     // async fn get_prices_history(&self, data: )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::public::PubClient;
+
+    #[tokio::test]
+    async fn test_get_market_price() {
+        let client = PubClient::new();
+
+        let market_price_1 = client
+            .get_market_price(MarketPriceDTO {
+                token_id: (),
+                side: (),
+            })
+            .await;
+    }
+}

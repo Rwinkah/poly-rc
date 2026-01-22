@@ -1,8 +1,8 @@
 Implement Tests for Features Implemented So Far
 
 Brian's Scope
-[ ] - Events
-[ ] - Sports
+[X] - Events
+[X] - Sports
 [ ] - Pricing
 
 Wino's Scope
