@@ -19,3 +19,41 @@ pub trait Spreads {
         Ok(spread)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::public::PubClient;
+    use crate::shared::Side;
+
+    #[tokio::test]
+    async fn test_get_spread() {
+        let client = PubClient::new();
+
+        let spread_1 = client
+            .get_spread(SpreadBidAskDTO {
+                token_id: String::from("test_token_id"),
+                side: Some(Side::BUY),
+            })
+            .await;
+        if let Err(e) = &spread_1 {
+            eprintln!("Get spread error: {:?}", e);
+        }
+        let spread_2 = client
+            .get_spread(SpreadBidAskDTO {
+                token_id: String::from("test_token_id"),
+                side: Some(Side::SELL),
+            })
+            .await;
+        let spread_3 = client
+            .get_spread(SpreadBidAskDTO {
+                token_id: String::from("test_token_id"),
+                side: None,
+            })
+            .await;
+
+        assert!(spread_1.is_ok());
+        assert!(spread_2.is_ok());
+        assert!(spread_3.is_ok());
+    }
+}

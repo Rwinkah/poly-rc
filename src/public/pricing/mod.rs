@@ -84,15 +84,126 @@ mod tests {
     use super::*;
     use crate::public::PubClient;
 
+    use crate::shared::Side;
+    use models::PriceInterval;
+
     #[tokio::test]
     async fn test_get_market_price() {
         let client = PubClient::new();
 
         let market_price_1 = client
             .get_market_price(MarketPriceDTO {
-                token_id: (),
-                side: (),
+                token_id: String::from(""),
+                side: Side::BUY,
             })
             .await;
+
+        let price_1 = client
+            .get_market_price(MarketPriceDTO {
+                token_id: String::from("test_token_id"),
+                side: Side::BUY,
+            })
+            .await;
+        if let Err(e) = &price_1 {
+            eprintln!("Market price error: {:?}", e);
+        }
+        let price_2 = client
+            .get_market_price(MarketPriceDTO {
+                token_id: String::from("test_token_id"),
+                side: Side::SELL,
+            })
+            .await;
+
+        assert!(price_1.is_ok());
+        assert!(price_2.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_post_market_prices() {
+        let client = PubClient::new();
+
+        let prices = client
+            .post_market_prices(vec![
+                MarketPriceDTO {
+                    token_id: String::from("test_token_id_1"),
+                    side: Side::BUY,
+                },
+                MarketPriceDTO {
+                    token_id: String::from("test_token_id_2"),
+                    side: Side::SELL,
+                },
+            ])
+            .await;
+        if let Err(e) = &prices {
+            eprintln!("Post market prices error: {:?}", e);
+        }
+
+        assert!(prices.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_midpoint_price() {
+        let client = PubClient::new();
+
+        let price = client
+            .get_midpoint_price(TokenId {
+                token_id: String::from("test_token_id"),
+            })
+            .await;
+        if let Err(e) = &price {
+            eprintln!("Midpoint price error: {:?}", e);
+        }
+
+        assert!(price.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_price_history() {
+        let client = PubClient::new();
+
+        let history_1 = client
+            .get_price_history(PriceHistoryDTO {
+                market: String::from("test_market"),
+                start_ts: None,
+                end_ts: None,
+                interval: None,
+                fidelity: None,
+            })
+            .await;
+        if let Err(e) = &history_1 {
+            eprintln!("Price history error: {:?}", e);
+        }
+        let history_2 = client
+            .get_price_history(PriceHistoryDTO {
+                market: String::from("test_market"),
+                start_ts: Some(1000000),
+                end_ts: Some(2000000),
+                interval: Some(PriceInterval::Hour1),
+                fidelity: Some(1000),
+            })
+            .await;
+
+        assert!(history_1.is_ok());
+        assert!(history_2.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_post_bid_ask_spreads() {
+        let client = PubClient::new();
+
+        let spreads = client
+            .post_bid_ask_spreads(vec![
+                MarketPriceDTO {
+                    token_id: String::from("test_token_id_1"),
+                    side: Side::BUY,
+                },
+                MarketPriceDTO {
+                    token_id: String::from("test_token_id_2"),
+                    side: Side::SELL,
+                },
+            ])
+            .await;
+
+        assert!(spreads.is_ok());
     }
 }
