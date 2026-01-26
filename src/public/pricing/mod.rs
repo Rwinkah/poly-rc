@@ -1,7 +1,11 @@
 use crate::shared::{ApiError, QueryParams, TokenId, client::AsyncHttpClient};
 use async_trait::async_trait;
+
 pub mod models;
-use models::{BidAskSpreads, MarketPrice, MarketPriceDTO, MidpointPrice, PriceHistoryDTO};
+use models::{
+    BidAskSpreads, MarketPrice, MarketPriceDTO, MarketPriceSet, MidpointPrice, PriceHistoryDTO,
+    PricesHistory,
+};
 
 #[async_trait]
 pub trait Pricing {
@@ -28,10 +32,10 @@ pub trait Pricing {
     async fn post_market_prices(
         &self,
         data: Vec<MarketPriceDTO>,
-    ) -> Result<Vec<MarketPrice>, ApiError> {
+    ) -> Result<MarketPriceSet, ApiError> {
         let client = self.get_clob_client();
         let response = client.post(Some("/prices"), Some(data)).await?;
-        let prices: Vec<MarketPrice> = response.json().await?;
+        let prices: MarketPriceSet = response.json().await?;
         Ok(prices)
     }
 
@@ -53,11 +57,11 @@ pub trait Pricing {
     /// * `data` - The price history query parameters
     /// # Returns
     /// * `Result<Vec<MarketPrice>, ApiError>` - The price history for the given market
-    async fn get_price_history(&self, data: PriceHistoryDTO) -> Result<Vec<MarketPrice>, ApiError> {
+    async fn get_price_history(&self, data: PriceHistoryDTO) -> Result<PricesHistory, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/price/history"), Some(query)).await?;
-        let prices: Vec<MarketPrice> = response.json().await?;
+        let response = client.get(Some("/prices-history"), Some(query)).await?;
+        let prices: PricesHistory = response.json().await?;
         Ok(prices)
     }
 
@@ -83,9 +87,8 @@ pub trait Pricing {
 mod tests {
     use super::*;
     use crate::public::PubClient;
-
     use crate::shared::Side;
-    use models::PriceInterval;
+    use chrono::Utc;
 
     #[tokio::test]
     async fn test_get_market_price() {
@@ -93,117 +96,104 @@ mod tests {
 
         let market_price_1 = client
             .get_market_price(MarketPriceDTO {
-                token_id: String::from(""),
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
                 side: Side::BUY,
             })
             .await;
-
-        let price_1 = client
+        let market_price_2 = client
             .get_market_price(MarketPriceDTO {
-                token_id: String::from("test_token_id"),
-                side: Side::BUY,
-            })
-            .await;
-        if let Err(e) = &price_1 {
-            eprintln!("Market price error: {:?}", e);
-        }
-        let price_2 = client
-            .get_market_price(MarketPriceDTO {
-                token_id: String::from("test_token_id"),
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
                 side: Side::SELL,
             })
             .await;
 
-        assert!(price_1.is_ok());
-        assert!(price_2.is_ok());
+        assert!(market_price_1.is_ok());
+        assert!(market_price_2.is_ok());
     }
 
     #[tokio::test]
     async fn test_post_market_prices() {
         let client = PubClient::new();
 
-        let prices = client
-            .post_market_prices(vec![
-                MarketPriceDTO {
-                    token_id: String::from("test_token_id_1"),
-                    side: Side::BUY,
-                },
-                MarketPriceDTO {
-                    token_id: String::from("test_token_id_2"),
-                    side: Side::SELL,
-                },
-            ])
-            .await;
-        if let Err(e) = &prices {
-            eprintln!("Post market prices error: {:?}", e);
-        }
+        let data = vec![
+            MarketPriceDTO {
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
+                side: Side::BUY,
+            },
+            MarketPriceDTO {
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
+                side: Side::SELL,
+            },
+        ];
 
-        assert!(prices.is_ok());
+        let market_prices = client.post_market_prices(data).await;
+
+        dbg!(market_prices.as_ref().err());
+
+        assert!(market_prices.is_ok());
     }
 
     #[tokio::test]
     async fn test_get_midpoint_price() {
         let client = PubClient::new();
 
-        let price = client
-            .get_midpoint_price(TokenId {
-                token_id: String::from("test_token_id"),
-            })
-            .await;
-        if let Err(e) = &price {
-            eprintln!("Midpoint price error: {:?}", e);
-        }
+        let data = TokenId {
+            token_id:
+                "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                    .to_string(),
+        };
 
-        assert!(price.is_ok());
+        let mid_point_price = client.get_midpoint_price(data).await;
+
+        assert!(mid_point_price.is_ok());
     }
 
     #[tokio::test]
     async fn test_get_price_history() {
         let client = PubClient::new();
 
-        let history_1 = client
-            .get_price_history(PriceHistoryDTO {
-                market: String::from("test_market"),
-                start_ts: None,
-                end_ts: None,
-                interval: None,
-                fidelity: None,
-            })
-            .await;
-        if let Err(e) = &history_1 {
-            eprintln!("Price history error: {:?}", e);
-        }
-        let history_2 = client
-            .get_price_history(PriceHistoryDTO {
-                market: String::from("test_market"),
-                start_ts: Some(1000000),
-                end_ts: Some(2000000),
-                interval: Some(PriceInterval::Hour1),
-                fidelity: Some(1000),
-            })
-            .await;
+        let start_ts = Utc::now().timestamp();
+        let data = PriceHistoryDTO {
+            market: "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                .to_string(),
+            start_ts: start_ts as u128,
+            end_ts: (start_ts + 10) as u128,
+            ..Default::default()
+        };
 
-        assert!(history_1.is_ok());
-        assert!(history_2.is_ok());
+        let price_history = client.get_price_history(data).await;
+        dbg!(price_history.as_ref().err());
+        assert!(price_history.is_ok());
     }
 
     #[tokio::test]
     async fn test_post_bid_ask_spreads() {
         let client = PubClient::new();
 
-        let spreads = client
-            .post_bid_ask_spreads(vec![
-                MarketPriceDTO {
-                    token_id: String::from("test_token_id_1"),
-                    side: Side::BUY,
-                },
-                MarketPriceDTO {
-                    token_id: String::from("test_token_id_2"),
-                    side: Side::SELL,
-                },
-            ])
-            .await;
+        let data = vec![
+            MarketPriceDTO {
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
+                side: Side::BUY,
+            },
+            MarketPriceDTO {
+                token_id:
+                    "85229865481166262443616698813899475047082678584551624516576861283095641108073"
+                        .to_string(),
+                side: Side::SELL,
+            },
+        ];
 
-        assert!(spreads.is_ok());
+        let bid_ask_spread = client.post_bid_ask_spreads(data).await;
+        assert!(bid_ask_spread.is_ok());
     }
 }

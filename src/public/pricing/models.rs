@@ -3,6 +3,10 @@ use std::collections::HashMap;
 use crate::shared::{QueryParams, Side};
 use serde::{Deserialize, Serialize, Serializer};
 
+/// Represent a Set of Market Prices where each key is the token id
+/// and their values are a hashmap of the buy and sell position at that moment
+pub type MarketPriceSet = HashMap<String, HashMap<String, String>>;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketPriceDTO {
     pub token_id: String,
@@ -21,8 +25,8 @@ pub struct PricesHistory {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistoryItem {
-    pub t: String,
-    pub p: String,
+    pub t: u128,
+    pub p: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,12 +88,12 @@ impl<'de> Deserialize<'de> for PriceInterval {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PriceHistoryDTO {
     pub market: String,
-    pub start_ts: Option<u128>,
-    pub end_ts: Option<u128>,
+    pub start_ts: u128,
+    pub end_ts: u128,
     pub interval: Option<PriceInterval>,
     pub fidelity: Option<u128>,
 }
@@ -108,14 +112,8 @@ impl QueryParams for PriceHistoryDTO {
         let mut params = HashMap::new();
 
         params.insert("market".to_string(), self.market.clone());
-
-        if let Some(start_ts) = self.start_ts {
-            params.insert("startTs".to_string(), start_ts.to_string());
-        }
-
-        if let Some(end_ts) = self.end_ts {
-            params.insert("endTs".to_string(), end_ts.to_string());
-        }
+        params.insert("startTs".to_string(), self.start_ts.to_string());
+        params.insert("endTs".to_string(), self.end_ts.to_string());
 
         if let Some(interval) = &self.interval {
             params.insert("interval".to_string(), interval.as_str().to_string());
