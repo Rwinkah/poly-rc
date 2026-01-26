@@ -26,9 +26,10 @@ impl QueryParams for TagDTO {
         }
         if let Some(order) = &self.order {
             let mut order_str = String::new();
-            for (i, order) in order.iter().enumerate() {
-                order_str.push_str(order);
-                if i < order.len() - 1 {
+            let order_len = order.len();
+            for (i, order_item) in order.iter().enumerate() {
+                order_str.push_str(order_item);
+                if i < order_len - 1 {
                     order_str.push(',');
                 }
             }
