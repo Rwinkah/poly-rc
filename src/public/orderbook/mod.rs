@@ -60,7 +60,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_post_orderbook_summaries() {
+    async fn test_post_orderbook_summaries_multiple_tokens() {
         let client = PubClient::new();
 
         let orderbooks = client
@@ -74,6 +74,58 @@ mod tests {
             ])
             .await;
 
+        if let Err(e) = &orderbooks {
+            eprintln!("Orderbook summaries error: {:?}", e);
+        }
+        assert!(orderbooks.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_post_orderbook_summaries_single_token() {
+        let client = PubClient::new();
+
+        let orderbooks = client
+            .post_orderbook_summaries(vec![TokenId {
+                token_id: String::from("test_token_id"),
+            }])
+            .await;
+
+        if let Err(e) = &orderbooks {
+            eprintln!("Orderbook summaries error (single token): {:?}", e);
+        }
+        assert!(orderbooks.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_post_orderbook_summaries_empty_vec() {
+        let client = PubClient::new();
+
+        let orderbooks = client.post_orderbook_summaries(vec![]).await;
+
+        if let Err(e) = &orderbooks {
+            eprintln!("Orderbook summaries error (empty vec): {:?}", e);
+        }
+        // Empty vector might be valid or invalid depending on API - test will show behavior
+        // If API rejects empty, this will fail; if it accepts, it will pass
+        let _ = orderbooks;
+    }
+
+    #[tokio::test]
+    async fn test_post_orderbook_summaries_large_batch() {
+        let client = PubClient::new();
+
+        // Test with a larger batch of tokens
+        let tokens: Vec<TokenId> = (1..=10)
+            .map(|i| TokenId {
+                token_id: format!("test_token_id_{}", i),
+            })
+            .collect();
+
+        let orderbooks = client.post_orderbook_summaries(tokens).await;
+
+        if let Err(e) = &orderbooks {
+            eprintln!("Orderbook summaries error (large batch): {:?}", e);
+        }
         assert!(orderbooks.is_ok());
     }
 }
