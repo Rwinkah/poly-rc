@@ -15,7 +15,7 @@ pub trait Tags {
     async fn get_tags(&self, data: TagDTO) -> Result<Vec<TagItem>, ApiError> {
         let client = self.get_gamma_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/tags"), Some(query)).await?;
+        let response = client.get(Some("/tags"), Some(query), None).await?;
         let tags: Vec<TagItem> = response.json().await?;
         Ok(tags)
     }
@@ -30,7 +30,7 @@ pub trait Tags {
         let client = self.get_gamma_client();
         let query = data.as_query_params();
         let response = client
-            .get(Some(format!("/tags/{}", id).as_str()), Some(query))
+            .get(Some(format!("/tags/{}", id).as_str()), Some(query), None)
             .await?;
         let tag: TagItem = response.json().await?;
         Ok(tag)
@@ -46,7 +46,11 @@ pub trait Tags {
         let client = self.get_gamma_client();
         let query = data.as_query_params();
         let response = client
-            .get(Some(format!("/tags/slug/{}", slug).as_str()), Some(query))
+            .get(
+                Some(format!("/tags/slug/{}", slug).as_str()),
+                Some(query),
+                None,
+            )
             .await?;
         let tag: TagItem = response.json().await?;
         Ok(tag)
@@ -69,6 +73,7 @@ pub trait Tags {
             .get(
                 Some(format!("/tags/{}/related-tags", id).as_str()),
                 Some(query),
+                None,
             )
             .await?;
         let tags: Vec<TagRelationshipItem> = response.json().await?;
@@ -92,6 +97,7 @@ pub trait Tags {
             .get(
                 Some(format!("/tags/slug/{}/related-tags", slug).as_str()),
                 Some(query),
+                None,
             )
             .await?;
         let tags: Vec<TagRelationshipItem> = response.json().await?;
@@ -115,6 +121,7 @@ pub trait Tags {
             .get(
                 Some(format!("/tags/{}/related-tags/tags", id).as_str()),
                 Some(query),
+                None,
             )
             .await?;
         let tags: Vec<TagItem> = response.json().await?;
@@ -138,6 +145,7 @@ pub trait Tags {
             .get(
                 Some(format!("/tags/slug/{}/related-tags/tags", slug).as_str()),
                 Some(query),
+                None,
             )
             .await?;
         let tags: Vec<TagItem> = response.json().await?;

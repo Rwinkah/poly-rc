@@ -1,4 +1,4 @@
-use reqwest::{Client as ReqwestClient, Error, Response, StatusCode};
+use reqwest::{Client as ReqwestClient, Error, Response, StatusCode, header::HeaderMap};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::time::Duration;
@@ -27,6 +27,7 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         query: Option<HashMap<String, String>>,
+        headers: Option<HeaderMap>,
     ) -> Result<Response, ApiError> {
         let url = if let Some(p) = path {
             format!("{}{}", self.base_url, p)
@@ -37,12 +38,15 @@ impl AsyncHttpClient {
         let mut request = self.client.get(&url);
 
         if let Some(query_params) = query {
-            // Convert HashMap<String, String> to HashMap<&str, &str> for reqwest
             let query_refs: HashMap<&str, &str> = query_params
                 .iter()
                 .map(|(k, v)| (k.as_str(), v.as_str()))
                 .collect();
             request = request.query(&query_refs);
+        }
+
+        if let Some(h) = headers {
+            request = request.headers(h);
         }
 
         let response = request.send().await?;
@@ -66,12 +70,26 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         body: Option<T>,
+        query: Option<HashMap<String, String>>,
+        headers: Option<HeaderMap>,
     ) -> Result<Response, ApiError> {
         let url = format!("{}{}", self.base_url, path.unwrap_or(""));
         let mut request = self.client.post(&url);
 
         if let Some(body_params) = body {
             request = request.json(&body_params);
+        }
+
+        if let Some(query_params) = query {
+            let query_refs: HashMap<&str, &str> = query_params
+                .iter()
+                .map(|(k, v)| (k.as_str(), v.as_str()))
+                .collect();
+            request = request.query(&query_refs);
+        }
+
+        if let Some(h) = headers {
+            request = request.headers(h);
         }
 
         let response = request.send().await?;
@@ -83,12 +101,26 @@ impl AsyncHttpClient {
         &self,
         path: Option<&str>,
         body: Option<T>,
+        query: Option<HashMap<String, String>>,
+        headers: Option<HeaderMap>,
     ) -> Result<Response, ApiError> {
         let url = format!("{}{}", self.base_url, path.unwrap_or(""));
         let mut request = self.client.put(&url);
 
         if let Some(body_params) = body {
             request = request.json(&body_params);
+        }
+
+        if let Some(query_params) = query {
+            let query_refs: HashMap<&str, &str> = query_params
+                .iter()
+                .map(|(k, v)| (k.as_str(), v.as_str()))
+                .collect();
+            request = request.query(&query_refs);
+        }
+
+        if let Some(h) = headers {
+            request = request.headers(h);
         }
 
         let response = request.send().await?;

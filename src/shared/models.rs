@@ -1,5 +1,9 @@
+use alloy::signers::Error as AlloyError;
+use base64::DecodeError;
+use reqwest::header::InvalidHeaderValue;
 use reqwest::{Error as ReqwestError, StatusCode, Url};
 use serde::{Deserialize, Serialize};
+use sha2::digest::InvalidLength;
 use std::{collections::HashMap, fmt};
 
 /// Converts a value into HTTP URL query parameters.
@@ -33,6 +37,7 @@ pub enum ApiError {
     Http(HttpError),
     Decode(String),
     Unexpected(String),
+    Crypto(String),
 }
 
 impl From<HttpError> for ApiError {
@@ -47,6 +52,23 @@ impl From<String> for ApiError {
     }
 }
 
+impl From<AlloyError> for ApiError {
+    fn from(error: AlloyError) -> Self {
+        ApiError::Crypto(error.to_string())
+    }
+}
+
+impl From<InvalidLength> for ApiError {
+    fn from(error: InvalidLength) -> Self {
+        ApiError::Crypto(error.to_string())
+    }
+}
+
+impl From<DecodeError> for ApiError {
+    fn from(error: DecodeError) -> Self {
+        ApiError::Decode(error.to_string())
+    }
+}
 impl From<ReqwestError> for ApiError {
     fn from(error: ReqwestError) -> Self {
         // Only convert to HttpError if there's an actual HTTP status code
@@ -70,6 +92,12 @@ impl From<ReqwestError> for ApiError {
 impl From<serde_json::Error> for ApiError {
     fn from(error: serde_json::Error) -> Self {
         ApiError::Decode(format!("JSON decode error: {error}"))
+    }
+}
+
+impl From<InvalidHeaderValue> for ApiError {
+    fn from(error: InvalidHeaderValue) -> Self {
+        ApiError::Decode(format!("Invalid header value: {error}"))
     }
 }
 

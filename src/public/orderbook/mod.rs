@@ -16,7 +16,7 @@ pub trait OrderBook {
     async fn get_orderbook_summary(&self, data: TokenId) -> Result<OrderbookSummary, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/book"), Some(query)).await?;
+        let response = client.get(Some("/book"), Some(query), None).await?;
         let text = response.text().await?;
         let orderbook: OrderbookSummary = serde_json::from_str(&text).unwrap();
         Ok(orderbook)
@@ -32,7 +32,7 @@ pub trait OrderBook {
         data: Vec<TokenId>,
     ) -> Result<Vec<OrderbookSummary>, ApiError> {
         let client = self.get_clob_client();
-        let response = client.post(Some("/books"), Some(data)).await?;
+        let response = client.post(Some("/books"), Some(data), None, None).await?;
         let orderbook: Vec<OrderbookSummary> = response.json().await?;
         Ok(orderbook)
     }

@@ -9,4 +9,4 @@ Brian's Scope
 Wino's Scope
 [X] - OrderBook
 [X] - Spreads
-[ ] - Tags
+[X] - Tags

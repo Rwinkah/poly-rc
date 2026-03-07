@@ -1,4 +1,4 @@
-pub mod private;
+pub mod clob_client;
 pub mod public;
 pub mod shared;
 

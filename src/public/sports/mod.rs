@@ -16,7 +16,7 @@ pub trait Sports {
     async fn get_sports_teams(&self, data: SportsTeamsDTO) -> Result<Vec<SportsTeam>, ApiError> {
         let client = self.get_gamma_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/teams"), Some(query)).await?;
+        let response = client.get(Some("/teams"), Some(query), None).await?;
         let sports_data: Vec<SportsTeam> = response.json().await?;
         Ok(sports_data)
     }
@@ -28,7 +28,7 @@ pub trait Sports {
     /// * `Result<SportsMetadata, ApiError>` - The sports [SportsMetadata] object, or an [ApiError] if the request fails
     async fn get_sports_metadata(&self) -> Result<Vec<SportsMetadata>, ApiError> {
         let client = self.get_gamma_client();
-        let response = client.get(Some("/sports"), None).await?;
+        let response = client.get(Some("/sports"), None, None).await?;
         let sports_metadata: Vec<SportsMetadata> = response.json().await?;
         Ok(sports_metadata)
     }
@@ -38,7 +38,7 @@ pub trait Sports {
     /// * `Result<Vec<String>, ApiError>` - A vector of sports market types, or an [ApiError] if the request fails
     async fn get_sports_market_types(&self) -> Result<Vec<String>, ApiError> {
         let client = self.get_gamma_client();
-        let response = client.get(Some("/sports/market-types"), None).await?;
+        let response = client.get(Some("/sports/market-types"), None, None).await?;
         let response = response.json::<MarketTypesResponse>().await?;
         let sports_market_types: Vec<String> = response.market_types;
         Ok(sports_market_types)

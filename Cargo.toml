@@ -12,3 +12,12 @@ async-trait = "0.1.89"
 chrono = { version = "0.4.42", features = ["serde"] }
 secrecy = { version = "0.10.3", features = ["serde"] }
 thiserror = "2.0.18"
+dotenv = "0.15.0"
+#alloy = "1.6.3"
+alloy = { version = "1.6.3", features = ["full", "eip712"]}
+
+# Disable only AWS signer by unsetting its feature
+alloy-signer-aws = { version = "0.0.0-reserved", optional = true }
+hmac = "0.12.1"
+sha2 = "0.10.9"
+base64 = "0.22.1"

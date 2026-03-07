@@ -12,7 +12,7 @@ pub trait Events {
     async fn get_events(&self, data: EventDTO) -> Result<Vec<EventInfo>, ApiError> {
         let client = self.get_gamma_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/events"), Some(query)).await?;
+        let response = client.get(Some("/events"), Some(query), None).await?;
         let events: Vec<EventInfo> = response.json().await?;
         Ok(events)
     }
@@ -21,7 +21,7 @@ pub trait Events {
         let path = format!("{}{}", "/events/", id);
         let client = self.get_gamma_client();
         let query = data.as_query_params();
-        let response = client.get(Some(path.as_str()), Some(query)).await?;
+        let response = client.get(Some(path.as_str()), Some(query), None).await?;
         let event: EventInfo = response.json().await?;
         Ok(event)
     }
@@ -29,7 +29,7 @@ pub trait Events {
     async fn get_event_tags(&self, id: String) -> Result<Vec<EventTag>, ApiError> {
         let path = format!("{}{}/tags", "/events/", id);
         let client = self.get_gamma_client();
-        let response = client.get(Some(path.as_str()), None).await?;
+        let response = client.get(Some(path.as_str()), None, None).await?;
         let event_tag: Vec<EventTag> = response.json().await?;
         Ok(event_tag)
     }
@@ -37,8 +37,8 @@ pub trait Events {
     async fn get_event_by_slug(&self, slug: String) -> Result<EventInfo, ApiError> {
         let path = format!("{}{}", "/events/slug/", slug);
         let client = self.get_gamma_client();
-        let response = client.get(Some(path.as_str()), None).await?; //
-        let event: EventInfo = response.json().await?; //
+        let response = client.get(Some(path.as_str()), None, None).await?;
+        let event: EventInfo = response.json().await?;
         Ok(event)
     }
 }

@@ -19,7 +19,7 @@ pub trait Pricing {
     async fn get_market_price(&self, data: MarketPriceDTO) -> Result<MarketPrice, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/price"), Some(query)).await?;
+        let response = client.get(Some("/price"), Some(query), None).await?;
         let price: MarketPrice = response.json().await?;
         Ok(price)
     }
@@ -34,7 +34,7 @@ pub trait Pricing {
         data: Vec<MarketPriceDTO>,
     ) -> Result<MarketPriceSet, ApiError> {
         let client = self.get_clob_client();
-        let response = client.post(Some("/prices"), Some(data)).await?;
+        let response = client.post(Some("/prices"), Some(data), None, None).await?;
         let prices: MarketPriceSet = response.json().await?;
         Ok(prices)
     }
@@ -47,7 +47,7 @@ pub trait Pricing {
     async fn get_midpoint_price(&self, data: TokenId) -> Result<MidpointPrice, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/midpoint"), Some(query)).await?;
+        let response = client.get(Some("/midpoint"), Some(query), None).await?;
         let price: MidpointPrice = response.json().await?;
         Ok(price)
     }
@@ -60,7 +60,9 @@ pub trait Pricing {
     async fn get_price_history(&self, data: PriceHistoryDTO) -> Result<PricesHistory, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/prices-history"), Some(query)).await?;
+        let response = client
+            .get(Some("/prices-history"), Some(query), None)
+            .await?;
         let prices: PricesHistory = response.json().await?;
         Ok(prices)
     }
@@ -75,7 +77,9 @@ pub trait Pricing {
         data: Vec<MarketPriceDTO>,
     ) -> Result<BidAskSpreads, ApiError> {
         let client = self.get_clob_client();
-        let response = client.post(Some("/spreads"), Some(data)).await?;
+        let response = client
+            .post(Some("/spreads"), Some(data), None, None)
+            .await?;
         let spreads: BidAskSpreads = response.json().await?;
         Ok(spreads)
     }

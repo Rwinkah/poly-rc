@@ -1,20 +1,26 @@
-#![allow(unused_imports)]
+use dotenv::dotenv;
 
-use std::{collections::btree_set::SymmetricDifference, hash::DefaultHasher, os::unix::fs};
-
-use poly_rc::public::{
-    PubClient, TokenId,
-    events::Events,
-    events::models::EventDTO,
-    orderbook::OrderBook,
-    pricing::{Pricing, models::MarketPriceDTO},
-    sports::{Sports, models::SportsTeamsDTO},
-};
-
-use poly_rc::public::events;
-use poly_rc::shared::Side;
+use poly_rc::clob_client::ClobClient;
+use poly_rc::clob_client::models::ClobClientArgs;
+use std::env;
+use std::time::Instant;
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
+    let start = Instant::now();
+    dotenv().ok();
+    let clob_url = env::var("CLOB_URL").expect("CLOB_URL must be set");
+    let private_key = env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set");
+    let args = ClobClientArgs {
+        clob_url,
+        auto_retry: None,
+        private_key: Some(private_key),
+    };
+    let new_client: ClobClient = ClobClient::new(args).await.unwrap();
+
+    let credentials = new_client.l2_credentials();
+
+    let duration = start.elapsed();
+    println!("{:?}", credentials);
+    println!("{:?}", duration);
 }

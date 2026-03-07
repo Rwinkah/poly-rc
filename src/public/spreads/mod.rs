@@ -14,7 +14,7 @@ pub trait Spreads {
     async fn get_spread(&self, data: SpreadBidAskDTO) -> Result<Spread, ApiError> {
         let client = self.get_clob_client();
         let query = data.as_query_params();
-        let response = client.get(Some("/spread"), Some(query)).await?;
+        let response = client.get(Some("/spread"), Some(query), None).await?;
         let spread: Spread = response.json().await?;
         Ok(spread)
     }
