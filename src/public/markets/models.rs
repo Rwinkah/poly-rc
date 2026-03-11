@@ -6,13 +6,7 @@ use crate::shared::QueryParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct MarketDTO {
-    pub active: Option<bool>,
-    pub closed: Option<bool>,
-    pub limit: Option<u32>,
-    pub include_chat: Option<bool>,
-    pub include_template: Option<bool>,
-}
+pub struct MarketDTO {}
 
 impl QueryParams for MarketDTO {
     fn as_query_params(&self) -> HashMap<String, String> {
@@ -26,6 +20,5 @@ pub struct Market {
     pub id: String,
     pub slug: String,
     pub question: String,
-    pub best_bid: f64,
-    pub best_ask: f64,
+    pub clob_token_ids: f64,
 }
