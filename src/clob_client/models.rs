@@ -24,15 +24,6 @@ use std::ops::Deref;
 #[derive(Clone)]
 pub struct L1Headers(HeaderMap);
 
-/// L2 authentication headers
-///
-/// These headers must be present in any authenticated request to the clob api.
-///
-/// They are generated using the [`L2Credentials`] returned from the
-/// authentication flow.
-#[derive(Clone)]
-pub struct L2Headers(HeaderMap);
-
 impl L1Headers {
     /// Creates a new `L1Headers` instance.
     ///
@@ -93,6 +84,15 @@ impl From<L1Headers> for HeaderMap {
         headers.0
     }
 }
+
+/// L2 authentication headers
+///
+/// These headers must be present in any authenticated request to the clob api.
+///
+/// They are generated using the [`L2Credentials`] returned from the
+/// authentication flow.
+#[derive(Clone)]
+pub struct L2Headers(HeaderMap);
 
 impl L2Headers {
     /// Creates a new `L2Header` instance

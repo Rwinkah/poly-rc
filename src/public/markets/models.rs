@@ -20,5 +20,18 @@ pub struct Market {
     pub id: String,
     pub slug: String,
     pub question: String,
-    pub clob_token_ids: f64,
+    pub clob_token_ids: String,
+}
+
+impl Market {
+    pub fn clob_token_ids(&self) -> (String, String) {
+        let clean = self
+            .clob_token_ids
+            .trim_matches(|c| c == '[' || c == ']' || c == '"');
+
+        // 2. Split by the delimiter ", "
+        let vec: Vec<String> = clean.split("\", \"").map(|s| s.to_string()).collect();
+
+        (vec[0].clone(), vec[1].clone())
+    }
 }
