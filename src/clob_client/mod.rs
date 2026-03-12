@@ -19,6 +19,7 @@
 //! - [`L2Headers`]: Headers constructed from L2 credentials for authenticated requests.
 
 pub mod models;
+pub mod orders;
 
 use crate::clob_client::models::{ClobAuth, ClobClientArgs, L1Headers, L2Credentials, L2Headers};
 use crate::public::AsyncHttpClient;
@@ -273,6 +274,7 @@ impl ClobClient {
             &signature.as_str(),
             timestamp,
             &self.l2_credentials.passphrase,
+            &self.l2_credentials.api_key,
         )?)
     }
 }

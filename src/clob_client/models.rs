@@ -101,6 +101,7 @@ impl L2Headers {
     /// - `address`: The wallet address for authentication
     /// - `signature`: `Hmac` signature generated for the request
     /// - `timestamp`: Server timestamp
+    /// - `api_key` : Api key from [`L2Credentials`]
     /// - `passphrase`: Passphrase from [`L2Credentials`]
     ///
     /// # Errors
@@ -111,6 +112,7 @@ impl L2Headers {
         signature: &str,
         timestamp: u64,
         passphrase: &str,
+        api_key: &str,
     ) -> Result<Self, ApiError> {
         let mut headers = HeaderMap::new();
         headers.insert("POLY_ADDRESS", HeaderValue::from_str(&address.to_string())?);
@@ -120,6 +122,7 @@ impl L2Headers {
             HeaderValue::from_str(&timestamp.to_string())?,
         );
         headers.insert("POLY_PASSPHRASE", HeaderValue::from_str(passphrase)?);
+        headers.insert("POLY_API_KEY", HeaderValue::from_str(api_key)?);
 
         Ok(Self(headers))
     }
