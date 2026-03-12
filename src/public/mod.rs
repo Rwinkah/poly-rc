@@ -1,9 +1,11 @@
+use crate::public::markets::Markets;
 use crate::public::{orderbook::OrderBook, pricing::Pricing, spreads::Spreads};
 
 // pub mod client;
 // pub mod events;
 
 pub mod events;
+pub mod markets;
 pub mod orderbook;
 pub mod pricing;
 pub mod sports;
@@ -54,6 +56,12 @@ impl Sports for PubClient {
 }
 
 impl Events for PubClient {
+    fn get_gamma_client(&self) -> &AsyncHttpClient {
+        &self.gamma_client
+    }
+}
+
+impl Markets for PubClient {
     fn get_gamma_client(&self) -> &AsyncHttpClient {
         &self.gamma_client
     }

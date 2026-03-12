@@ -277,4 +277,17 @@ impl ClobClient {
             &self.l2_credentials.api_key,
         )?)
     }
+
+    // pub async fn post_order(&self) -> Result<Order, ApiError> {
+    //     // let l2_headers = self.generate_l2_headers(
+    //     //     "post",
+    //     //     "orders/",
+    //     //     Some(""),
+    //     // )
+    //     // let response = self.client.post(path, body, query, headers)
+    //     // Ok(order)
+
+    // }
 }
+
+struct Order {}
