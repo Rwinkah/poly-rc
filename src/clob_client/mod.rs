@@ -40,6 +40,7 @@ use std::env;
 /// Handles authentication, header generation, and provides access to
 /// both L1 and L2 credentials. All network operations are performed
 /// asynchronously.
+#[derive(Debug)]
 pub struct ClobClient {
     client: AsyncHttpClient,
     l2_credentials: L2Credentials,
@@ -279,4 +280,10 @@ impl ClobClient {
     }
 }
 
-struct Order {}
+use crate::clob_client::orders::Orders;
+
+impl Orders for ClobClient {
+    fn get_private_clob_client(&self) -> &ClobClient {
+        &self
+    }
+}

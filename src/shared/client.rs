@@ -6,6 +6,7 @@ use std::time::Duration;
 use crate::shared::{ApiError, HttpError};
 
 /// An asynchronous HTTP client for making requests to the API
+#[derive(Debug)]
 pub struct AsyncHttpClient {
     client: ReqwestClient,
     base_url: String,
