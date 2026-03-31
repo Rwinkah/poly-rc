@@ -20,6 +20,7 @@
 
 pub mod models;
 pub mod orders;
+pub mod config;
 
 use crate::clob_client::models::{ClobAuth, ClobClientArgs, L1Headers, L2Credentials, L2Headers};
 use crate::public::AsyncHttpClient;
@@ -228,7 +229,7 @@ impl ClobClient {
     ) -> Result<(u64, String), ApiError> {
         let timestamp = Self::get_server_time(&self.client).await?;
 
-        let key_bytes = general_purpose::STANDARD.decode(secret)?;
+        let key_bytes = general_purpose::URL_SAFE.decode(secret)?;
 
         let mut message = format!("{}{}{}", timestamp, method, request_path);
 
@@ -258,7 +259,7 @@ impl ClobClient {
     ///
     /// # Returns
     /// A [`L2Headers`] instance containing the necessary headers for the request.
-    pub async fn generate_l2_headers(
+    pub async fn    generate_l2_headers(
         &self,
         method: &str,
         request_path: &str,

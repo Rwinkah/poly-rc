@@ -21,7 +21,6 @@ async fn main() {
         private_key: Some(private_key),
     };
     let new_client: ClobClient = ClobClient::new(args).await.unwrap();
-
     let credentials = new_client.l2_credentials();
 
     let duration = start.elapsed();

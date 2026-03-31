@@ -148,3 +148,12 @@ impl fmt::Display for Side {
         }
     }
 }
+
+impl From<Side> for u8 {
+    fn from(side: Side) -> u8 {
+        match side {
+            Side::BUY => 0,
+            Side::SELL => 1,
+        }
+    }
+}

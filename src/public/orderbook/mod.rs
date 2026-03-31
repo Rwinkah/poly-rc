@@ -4,6 +4,7 @@ use crate::shared::{ApiError, QueryParams, TokenId, client::AsyncHttpClient};
 pub mod models;
 use async_trait::async_trait;
 pub use models::{Order, OrderbookRequestDTO, OrderbookSummary};
+use crate::clob_client::orders::models::NegRiskResponse;
 
 #[async_trait]
 pub trait OrderBook {
@@ -20,6 +21,21 @@ pub trait OrderBook {
         let text = response.text().await?;
         let orderbook: OrderbookSummary = serde_json::from_str(&text).unwrap();
         Ok(orderbook)
+    }
+
+
+    /// Get the neg_risk value for a given token id
+    /// # Arguments
+    /// * `data` - The token id to get the neg_risk value for
+    /// # Returns
+    /// * `Result<NegRiskResponse, ApiError>` - The neg_risk value for the given token id
+    async fn get_neg_risk(&self, data: TokenId) -> Result<NegRiskResponse, ApiError> {
+        let client = self.get_clob_client();
+        let query = data.as_query_params();
+        let response = client.get(Some("/book"), Some(query), None).await?;
+        let text = response.text().await?;
+        let neg_risk: NegRiskResponse = serde_json::from_str(&text)?;
+        Ok(neg_risk)
     }
 
     /// Get the orderbook summaries for a given list of token ids
