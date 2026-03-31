@@ -90,7 +90,6 @@ pub struct OrderCreateResponse {
     pub error_msg: String,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NegRiskResponse {
     pub neg_risk: bool,

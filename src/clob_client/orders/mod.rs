@@ -1,22 +1,21 @@
+use crate::clob_client::ClobClient;
+use crate::clob_client::config::Chains;
 use crate::clob_client::orders::models::{Order, OrderCreateDTO, OrderCreateResponse};
-use crate::clob_client::{ClobClient};
 use crate::public::{ApiError, AsyncHttpClient};
+use crate::shared::constants::{ORDER_NAME, ORDER_VERSION};
+use alloy::dyn_abi::Eip712Domain;
+use alloy::primitives::{Address, U256};
+use alloy::signers::k256::Secp256k1;
+use alloy::signers::k256::ecdsa::SigningKey;
 use alloy::signers::local::{LocalSigner, PrivateKeySigner};
 use dotenv::dotenv;
 use reqwest::Response;
 use std::env;
-use alloy::dyn_abi::Eip712Domain;
-use alloy::primitives::{Address, U256};
-use alloy::signers::k256::ecdsa::SigningKey;
-use alloy::signers::k256::Secp256k1;
-use crate::shared::constants::{ ORDER_NAME, ORDER_VERSION};
-use crate::clob_client::config::Chains;
 
 pub mod models;
 
 pub trait Orders {
     fn get_private_clob_client(&self) -> ClobClient;
-
 
     async fn post_order(&self, body: OrderCreateDTO) -> Result<OrderCreateResponse, ApiError> {
         dotenv().ok();
@@ -34,19 +33,22 @@ pub trait Orders {
         Ok(response.json().await?)
     }
 
-    async fn build_order_domain(&self, signer:LocalSigner<SigningKey<>>, neg_risk: bool) -> Result<Eip712Domain, ApiError> {
-        let exchange_contract:Address;
+    async fn build_order_domain(
+        &self,
+        signer: LocalSigner<SigningKey>,
+        neg_risk: bool,
+    ) -> Result<Eip712Domain, ApiError> {
+        let exchange_contract: Address;
 
-        
         match signer.chain_id() {
             Some(137) => {
                 let config = Chains::Polygon.config();
                 if neg_risk {
                     exchange_contract = config.neg_risk_config.exchange_contract
-                } else  {
+                } else {
                     exchange_contract = config.standard_config.exchange_contract
                 }
-            },
+            }
             Some(80002) => {
                 let config = Chains::Amoy.config();
                 if neg_risk {
@@ -54,13 +56,16 @@ pub trait Orders {
                 } else {
                     exchange_contract = config.standard_config.exchange_contract
                 }
-            },
-            _ => return Err(ApiError::Unexpected(format!("Unknown chain id {}", signer.chain_id().unwrap()).to_string())),
-
+            }
+            _ => {
+                return Err(ApiError::Unexpected(
+                    format!("Unknown chain id {}", signer.chain_id().unwrap()).to_string(),
+                ));
+            }
         }
         Ok(Eip712Domain {
             name: Some(ORDER_NAME.into()),
-            version:Some(ORDER_VERSION.into()),
+            version: Some(ORDER_VERSION.into()),
             chain_id: Some(U256::from(Chains::Polygon.id())),
             verifying_contract: Some(exchange_contract),
             ..Eip712Domain::default()

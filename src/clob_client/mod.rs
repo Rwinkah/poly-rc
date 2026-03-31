@@ -18,9 +18,9 @@
 //! - [`L2Credentials`]: API key, secret, and passphrase used for L2 authentication.
 //! - [`L2Headers`]: Headers constructed from L2 credentials for authenticated requests.
 
+pub mod config;
 pub mod models;
 pub mod orders;
-pub mod config;
 
 use crate::clob_client::models::{ClobAuth, ClobClientArgs, L1Headers, L2Credentials, L2Headers};
 use crate::public::AsyncHttpClient;
@@ -259,7 +259,7 @@ impl ClobClient {
     ///
     /// # Returns
     /// A [`L2Headers`] instance containing the necessary headers for the request.
-    pub async fn    generate_l2_headers(
+    pub async fn generate_l2_headers(
         &self,
         method: &str,
         request_path: &str,
