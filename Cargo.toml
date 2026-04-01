@@ -21,3 +21,4 @@ alloy-signer-aws = { version = "0.0.0-reserved", optional = true }
 hmac = "0.12.1"
 sha2 = "0.10.9"
 base64 = "0.22.1"
+serde_with = "3.17.0"

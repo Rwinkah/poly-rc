@@ -18,6 +18,7 @@
 //! - [`L2Credentials`]: API key, secret, and passphrase used for L2 authentication.
 //! - [`L2Headers`]: Headers constructed from L2 credentials for authenticated requests.
 
+pub mod config;
 pub mod models;
 pub mod orders;
 
@@ -229,7 +230,7 @@ impl ClobClient {
     ) -> Result<(u64, String), ApiError> {
         let timestamp = Self::get_server_time(&self.client).await?;
 
-        let key_bytes = general_purpose::STANDARD.decode(secret)?;
+        let key_bytes = general_purpose::URL_SAFE.decode(secret)?;
 
         let mut message = format!("{}{}{}", timestamp, method, request_path);
 

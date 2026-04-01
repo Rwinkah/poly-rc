@@ -1,15 +1,17 @@
+use alloy::signers::Signer;
 use dotenv::dotenv;
 
-use alloy::primitives::Address;
+use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::signers::local::PrivateKeySigner;
 
 use poly_rc::clob_client::ClobClient;
 use poly_rc::clob_client::models::ClobClientArgs;
 use poly_rc::clob_client::orders::Orders;
-use poly_rc::clob_client::orders::models::{OrderCreateDTO, OrderDetails, OrderType};
+use poly_rc::clob_client::orders::models::{OrderCreateDTO, Order, OrderType};
 use poly_rc::shared::Side;
 
 use std::io::Write;
+use std::str::FromStr;
 use std::time::Instant;
 use std::{env, io};
 
@@ -40,27 +42,25 @@ async fn main() {
 
     let new_client = ClobClient::new(clob_client_args).await.unwrap();
     let credentials = new_client.l2_credentials();
-    let token_id = String::from("");
-
+    
     // let signature = new_client.
-    let order = OrderDetails {
-        maker: maker.clone(),
-        signer: maker,
-        taker: String::from("0x0000000000000000000000000000000000000000"),
-        token_id,
-        maker_amount: String::from("100000000"),
-        taker_amount: String::from("200000000"),
-        side: Side::BUY,
-        expiration: String::from("1735699600"),
-        nonce: String::from("0"),
-        fee_rate_bps: String::from("30"),
-        signature: String::from(""),
-        salt: String::from("1234567890"),
-        signature_type: String::from("1"),
+    let order = Order { 
+        maker: signer.address(), 
+        signer: signer.address(), 
+        taker: Address::from_str("0x0000000000000000000000000000000000000000").unwrap(),
+        tokenId: U256::from(55284251473480771174001412691877696451865690949888921217752300450606336097674), 
+        makerAmount: todo!(), 
+        takerAmount: todo!(), 
+        expiration: todo!(), 
+        nonce: todo!(), 
+        feeRateBps: todo!(), 
+        side: todo!(), 
+        signatureType: todo!(), 
+        salt:  
     };
 
     let order_create_dto = OrderCreateDTO {
-        order: todo!(),
+        order: order,
         owner: new_client.l2_credentials().api_key.clone(),
         order_type: Some(OrderType::FOK),
         defer_exec: false,
