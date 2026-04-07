@@ -1,8 +1,16 @@
+use std::borrow::Cow;
+use alloy::primitives::{Signature, U256};
+use alloy::signers::local::PrivateKeySigner;
+use alloy::signers::Signer;
+use dotenv::dotenv;
 use crate::clob_client::ClobClient;
-use crate::shared::Side;
+use crate::shared::{ApiError, Side};
 use alloy::sol;
+use alloy::sol_types::{Eip712Domain, SolStruct};
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
+use crate::clob_client::config::Chains;
+use crate::shared::constants::{ORDER_NAME, ORDER_VERSION};
 
 pub struct CreateOrderDTO {
     order: Order,
@@ -68,13 +76,40 @@ sol! {
     }
 }
 
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SignedOrder {
+    #[serde(flatten)]
+    order: Order,
+    signature: Signature
+}
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderCreateDTO {
-    pub order: Order,
+    pub order: SignedOrder,
     pub owner: String,
-    pub order_type: Option<OrderType>,
+    pub order_type: OrderType,
     pub defer_exec: bool,
+}
+
+
+impl OrderCreateDTO {
+    pub async fn new(order: Order, order_type: OrderType, owner: String, defer_exec: bool, domain: Eip712Domain, signer: &PrivateKeySigner) -> Result<Self, ApiError> {
+        let order_signature = signer.sign_hash(&order.eip712_signing_hash(&domain)).await.unwrap();
+        let signed_order = SignedOrder {
+            order,
+            signature: order_signature
+        };
+
+        Ok(
+            Self {
+                order: signed_order,
+                owner,
+                order_type,
+                defer_exec,
+            }
+        )
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

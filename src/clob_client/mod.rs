@@ -23,7 +23,7 @@ pub mod models;
 pub mod orders;
 
 use crate::clob_client::models::{ClobAuth, ClobClientArgs, L1Headers, L2Credentials, L2Headers};
-use crate::public::AsyncHttpClient;
+use crate::public::{AsyncHttpClient, PubClient};
 use crate::shared::ApiError;
 use alloy::dyn_abi::Eip712Domain;
 use alloy::primitives::{Address, U256};
@@ -35,6 +35,8 @@ use reqwest::header::HeaderMap;
 use sha2::Sha256;
 use std::borrow::Cow;
 use std::env;
+use crate::clob_client::orders::models::OrderType;
+use crate::clob_client::orders::Orders;
 
 /// Main client for interacting with the CLOB API.
 ///
@@ -278,6 +280,20 @@ impl ClobClient {
             &self.l2_credentials.api_key,
         )?)
     }
+
+
+    pub async fn build_order(order_type:OrderType) -> Order{
+        
+    }
 }
 
-struct Order {}
+
+    impl Orders for ClobClient {
+        fn get_private_clob_client(&self) -> &ClobClient {
+            self
+        }
+
+        fn get_public_client(&self) -> PubClient {
+            PubClient::new()
+        }
+    }
