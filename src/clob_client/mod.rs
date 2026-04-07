@@ -43,6 +43,7 @@ use crate::clob_client::orders::Orders;
 /// Handles authentication, header generation, and provides access to
 /// both L1 and L2 credentials. All network operations are performed
 /// asynchronously.
+#[derive(Debug)]
 pub struct ClobClient {
     client: AsyncHttpClient,
     l2_credentials: L2Credentials,
