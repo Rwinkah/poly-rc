@@ -1,0 +1,131 @@
+# Rules for creating orders (`rs-clob-client`)
+
+This document summarizes how **limit** and **market** orders are built, validated, and turned into the on-chain `Order` struct in this crate. Source of truth: `src/clob/order_builder.rs`, `src/clob/types/mod.rs` (`Order`, `OrderType`, `Side`, `Amount`), and `src/clob/client.rs` (signing).
+
+## Two builder kinds
+
+| Kind | Entry | Required inputs | Default `OrderType` |
+|------|--------|-----------------|---------------------|
+| **Limit** | `client.limit_order()` | `token_id`, `side`, `price`, `size` | `GTC` |
+| **Market** | `client.market_order()` | `token_id`, `side`, `amount` | `FAK` |
+
+Optional fields on both: `nonce`, `expiration`, `taker`, `order_type`, `post_only`, `funder` (see below).
+
+---
+
+## `OrderType` (time-in-force / execution)
+
+Defined in `src/clob/types/mod.rs`:
+
+| Variant | Meaning |
+|---------|---------|
+| **GTC** | Good ’til cancelled; rests until filled or cancelled. |
+| **GTD** | Good ’til date; rests until expiration. |
+| **FOK** | Fill or kill: must fill **fully** immediately or cancel entirely. |
+| **FAK** | Fill and kill: fill what you can immediately; remainder cancelled. |
+
+**Limit orders:** any of `GTC`, `GTD`, `FOK`, `FAK` is valid in principle, but **extra rules** apply (expiration, `post_only`).
+
+**Market orders:** only **FAK** or **FOK** are allowed (`calculate_price` enforces this). Default is **FAK**.
+
+---
+
+## Limit-order rules
+
+### Required
+
+- **`token_id`** — outcome token id (`U256`).
+- **`side`** — `Buy` or `Sell` (`Side` enum; encoded as `0` / `1` on-chain).
+- **`price`** — non-negative; must respect **minimum tick size** (`tick_size` API): decimal places of price ≤ tick decimals; price in `[min_tick, 1 - min_tick]`.
+- **`size`** — positive; at most **`LOT_SIZE_SCALE` (2)** decimal places.
+
+### Defaults
+
+- **`order_type`:** `GTC` if unset.
+- **`nonce`:** `0` if unset.
+- **`expiration`:** Unix epoch (`0`) if unset.
+- **`taker`:** `Address::ZERO` (open to any counterparty) if unset.
+- **`post_only`:** `false` if unset; serialized as `Some(false)` unless you set `post_only`.
+
+### Cross-field validation
+
+1. **Expiration**
+   Only **GTD** may have a **non-zero** `expiration`. For other order types, `expiration` must stay at epoch (per validation).
+
+2. **`postOnly`**
+   **`post_only == true`** is only allowed for **`GTC`** and **`GTD`**. Otherwise validation fails.
+
+### Amounts (`makerAmount` / `takerAmount`)
+
+You do **not** set these directly. They are derived from **`side`**, **`price`**, and **`size`** (with truncation to tick + lot precision), then converted to fixed-point USDC units via `to_fixed_u128` (6 decimals).
+
+### On-chain `Order` fields (limit)
+
+- **`expiration`** — from `expiration` timestamp (seconds, `u64`).
+- **`post_only`** — carried in `SignableOrder` for API JSON, not as a field in the `sol!` `Order` struct.
+
+---
+
+## Market-order rules
+
+### Required
+
+- **`token_id`**, **`side`**
+- **`amount`** — `Amount::usdc(...)` or `Amount::shares(...)` (see `Amount` in `src/clob/types/mod.rs`):
+  - USDC: ≤ **6** decimal places.
+  - Shares: ≤ **2** decimal places (`LOT_SIZE_SCALE`).
+
+### Price
+
+- Optional **`price`**.
+- If **missing**, price is derived from the **order book** (`calculate_price`): walks depth until the notional (USDC) or share target is satisfied; **FOK** fails if liquidity is insufficient.
+
+### Market-only restrictions
+
+1. **`order_type`** — must be **FAK** or **FOK** (enforced when using book-derived price).
+2. **`post_only`** — **not** supported; if `true`, validation fails (`"postOnly is only supported for limit orders"`).
+3. **Sell + `Amount`** — **sell** orders must use **shares**, not USDC (`"Sell Orders must specify their amounts in shares"`).
+
+### On-chain `Order` fields (market)
+
+- **`expiration`** — always **`U256::ZERO`** on the `Order` struct (market orders do not use GTD-style expiration in this builder).
+
+### `SignableOrder` payload
+
+- **`post_only`** in `SignableOrder` is **`None`** for market builds.
+
+---
+
+## Salt
+
+- Salt is generated from **`salt_generator`** (default `generate_seed` in `order_builder.rs`: time × random, then masked).
+- Masked with **`to_ieee_754_int`**: value must fit **≤ 2⁵³ − 1** so JSON numbers do not lose precision on the API.
+- Serialized as a **JSON number** (see `ser_salt` in `src/clob/types/mod.rs`).
+
+---
+
+## Fees and tick size
+
+- **`fee_rate_bps`** and **`minimum_tick_size`** come from the CLOB API (`fee_rate_bps`, `tick_size`) for the given `token_id` during `build()`.
+
+---
+
+## Signing (after `SignableOrder`)
+
+`SignableOrder` does **not** include the signature. Signing happens in `Client::sign()` (`src/clob/client.rs`):
+
+1. Resolve **neg-risk** for the token (`neg_risk` endpoint / cache).
+2. Choose **exchange** address via `contract_config(chain_id, neg_risk)`.
+3. Build EIP-712 **domain** (name, version, chain id, verifying contract).
+4. **Sign** `order.eip712_signing_hash(&domain)` with the wallet `Signer`.
+
+---
+
+## Quick reference: what you set vs what the builder computes
+
+| You set | Builder computes |
+|--------|-------------------|
+| `token_id`, `side`, `price`, `size` (limit) or `amount` (market) | `makerAmount`, `takerAmount`, `salt` |
+| Optional `order_type`, `nonce`, `expiration`, `taker`, `post_only`, `funder` | Fee rate, tick validation, truncation |
+
+The **`taker` address** field on `Order` is the **allowed** counterparty address (zero = open); it is **not** “the other trader’s amount” — amounts are still derived from your price/size or amount.

@@ -9,3 +9,5 @@ pub const GAMMA_ENDPOINT: &str = "https://gamma-api.polymarket.com";
 
 pub const ORDER_NAME: &str = "Polymarket CTF Exchange";
 pub const ORDER_VERSION: &str = "1";
+pub const LOT_SIZE_SCALE: u16 = 2;
+pub const USDC_DECIMALS: u16 = 6;

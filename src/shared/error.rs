@@ -53,12 +53,11 @@ impl From<ReqwestError> for ApiError {
             // Response body decode error (not JSON deserialization)
             ApiError::Decode(format!("Response decoding error: {:?}", error))
         } else if error.is_timeout() {
-            ApiError::Unexpected("Request timeout".to_string())
+            ApiError::Unexpected(format!("Request timeout: {error}"))
         } else if error.is_connect() {
-            ApiError::Unexpected("Connection error".to_string())
+            ApiError::Unexpected(format!("Connection error: {error}"))
         } else {
-            // Other errors (TLS, request building, redirect loops, etc.)
-            ApiError::Unexpected("Request error".to_string())
+            ApiError::Unexpected(format!("Request error: {error}"))
         }
     }
 }

@@ -33,10 +33,9 @@ use hmac::{Hmac, Mac};
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use sha2::Sha256;
-use std::borrow::Cow;
-use std::env;
-use crate::clob_client::orders::models::OrderType;
-use crate::clob_client::orders::Orders;
+use std::{borrow::Cow, env};
+use crate::clob_client::orders::models::{Order, OrderType};
+use crate::clob_client::orders::{Orders, models::{OrderData}};
 
 /// Main client for interacting with the CLOB API.
 ///
@@ -92,8 +91,8 @@ impl ClobClient {
     /// cannot be parsed into a valid `PrivateKeySigner`.
     fn generate_signer(key: Option<String>) -> PrivateKeySigner {
         let private_key = key.unwrap_or_else(|| {
-            env::var("PRIVATE_KEY")
-                .expect("No private key provided and PRIVATE_KEY not found in environment")
+            env::var("POLYMARKET_PRIVATE_KEY")
+                .expect("No private key provided and POLYMARKET_PRIVATE_KEY not found in environment")
         });
 
         private_key
@@ -283,10 +282,27 @@ impl ClobClient {
     }
 
 
-    pub async fn build_order(order_type:OrderType) -> Order{
-        
+    pub async fn build_order(order_type:OrderType, order_data:OrderData) -> Order {
+        todo!()
     }
 }
+
+
+    async fn gtc_order() {
+        todo!();
+    }
+
+    async fn gtd_order() {
+        todo!();
+    }
+
+    async fn fok_order() {
+        todo!()
+    }
+
+    async fn fak_order() {
+        todo!()
+    }
 
 
     impl Orders for ClobClient {

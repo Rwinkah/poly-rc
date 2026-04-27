@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use alloy::primitives::{Signature, U256};
+use alloy::primitives::{Address, Signature, U256};
 use alloy::signers::local::PrivateKeySigner;
 use alloy::signers::Signer;
 use dotenv::dotenv;
@@ -10,7 +10,8 @@ use alloy::sol_types::{Eip712Domain, SolStruct};
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, serde_as};
 use crate::clob_client::config::Chains;
-use crate::shared::constants::{ORDER_NAME, ORDER_VERSION};
+use crate::shared::constants::{LOT_SIZE_SCALE, ORDER_NAME, ORDER_VERSION, USDC_DECIMALS};
+use rust_decimal::Decimal;
 
 pub struct CreateOrderDTO {
     order: Order,
@@ -30,6 +31,58 @@ pub enum OrderType {
     FOK,
     GTD,
     FAK,
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UsdcAmount(Decimal);
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ShareAmount(Decimal);
+
+impl UsdcAmount {
+    pub fn new(amount:Decimal) -> Result<Self, ApiError> {
+        match amount.normalize().scale() > USDC_DECIMALS.into() {
+            true => Err(ApiError::Decode(format!("{amount} can not be used as a USDC value, fractional part must be <= {USDC_DECIMALS} in length"))),
+            false => Ok(UsdcAmount(amount)),
+        }
+    }
+}
+
+impl ShareAmount {
+    pub fn new(amount:Decimal) -> Result<Self, ApiError> {
+        match amount.normalize().scale() > LOT_SIZE_SCALE.into() {
+            true => Err(ApiError::Decode(format!("{amount} can not be used as a Share value, fractional part must be <= {LOT_SIZE_SCALE} in length"))),
+            false => Ok(ShareAmount(amount.normalize()))
+        }
+    }
+}
+
+
+
+
+
+pub enum OrderData {
+    LimitData {
+        token_id: U256,
+        side: Side,
+        price: f32,
+        size: f32,
+        nonce:Option<u64>,
+        expiration: Option<chrono::DateTime<chrono::Utc>>,
+        taker: Option<Address>,
+        order_type: Option<OrderType>,
+        post_only: Option<bool>,
+        funder: Option<Address>,
+
+
+    },
+    MarketData {
+        token_id: U256,
+        amount: f32,
+        size: f32,
+        side: Side,
+    },
 }
 
 // #[derive(Debug, Serialize, Deserialize)]
